@@ -77,7 +77,7 @@ const AnimatedHeading = ({ text }) => {
                 </span>
             ))}
             <motion.span
-                className="text-[#b41a1a] inline-block"
+                className="text-emerald-600 inline-block"
                 variants={{
                     hidden: { scale: 0, opacity: 0 },
                     visible: { scale: 1, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 12 } },
@@ -226,19 +226,19 @@ const Services = () => {
     return (
         <section
             ref={sectionRef}
-            className="main-container relative bg-[#0f0f0f] px-6 md:px-12 py-16 md:py-24 m-auto mt-10 overflow-hidden"
+            className="main-container relative bg-[#000000] px-6 md:px-12 py-16 md:py-24 m-auto mt-10 overflow-hidden"
         >
             {/* Ambient red glow */}
             <motion.div
                 aria-hidden
                 animate={{ scale: [1, 1.15, 1], opacity: [0.25, 0.4, 0.25] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                className="pointer-events-none absolute -top-40 -right-40 h-[520px] w-[520px] rounded-full bg-[#b41a1a] blur-[160px]"
+                className="pointer-events-none absolute -top-40 -right-40 h-[520px] w-[520px] rounded-full bg-emerald-600 blur-[160px]"
             />
 
             {/* Scroll progress rail */}
             <div className="hidden md:block absolute left-4 top-24 bottom-24 w-px bg-white/10">
-                <motion.div style={{ scaleY: progress, originY: 0 }} className="h-full w-full bg-[#b41a1a]" />
+                <motion.div style={{ scaleY: progress, originY: 0 }} className="h-full w-full bg-emerald-600" />
             </div>
 
             {/* Label */}
@@ -247,14 +247,14 @@ const Services = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: EASE }}
-                className="lable relative text-[#b41a1a] italic flex gap-2 items-center mb-4"
+                className="lable relative text-emerald-600 italic flex gap-2 items-center mb-4"
             >
                 <motion.span
                     initial={{ width: 0 }}
                     whileInView={{ width: 32 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
-                    className="block h-px bg-[#b41a1a]"
+                    className="block h-px bg-[#048a47]"
                 />
                 Services
             </motion.div>

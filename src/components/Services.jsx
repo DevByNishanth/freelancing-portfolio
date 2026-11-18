@@ -94,7 +94,7 @@ const ServiceRow = ({ item, index }) => {
     const mouseX = useMotionValue(-500);
     const mouseY = useMotionValue(-500);
 
-    const spotlight = useMotionTemplate`radial-gradient(420px circle at ${mouseX}px ${mouseY}px, rgba(180,26,26,0.18), transparent 70%)`;
+    const spotlight = useMotionTemplate`radial-gradient(420px circle at ${mouseX}px ${mouseY}px, rgba(0, 153, 102, .30), transparent 70%)`;
 
     const handleMouseMove = (e) => {
         const rect = e.currentTarget.getBoundingClientRect();

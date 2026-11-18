@@ -39,8 +39,8 @@ function App() {
 
       <div className="h-screen relative bg-black ">
         <MagicRings
-          color="#9e9e9e"
-          colorTwo="#FF6B35"
+          color="#009966"
+          colorTwo="#009966 "
           ringCount={5}
           speed={0.4}
           glow={1.2}

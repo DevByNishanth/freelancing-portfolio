@@ -6,6 +6,7 @@ import SloshButton from "./components/SloshButton";
 import TinctureSlosh from "./components/TinctureSlosh";
 import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import { useEffect } from "react";
+import WhyChooseUs from "./components/WhyChooseUs";
 function App() {
 
   function Counter({ value, suffix, delay }) {
@@ -221,6 +222,9 @@ function App() {
 
       {/* services    */}
       <Services />
+
+      {/* why choose us  */}
+      <WhyChooseUs />
 
     </>
   );

@@ -136,7 +136,7 @@ const ServiceRow = ({ item, index }) => {
                     variants={{ rest: { scaleX: 0 }, hover: { scaleX: 1 } }}
                     transition={{ duration: 0.6, ease: EASE }}
                     style={{ originX: 0 }}
-                    className="absolute bottom-0 left-0 right-0 h-px bg-[#b41a1a]"
+                    className="absolute bottom-0 left-0 right-0 h-px bg-[#009966]"
                 />
 
                 {/* Title block */}
@@ -144,7 +144,7 @@ const ServiceRow = ({ item, index }) => {
                     <motion.span
                         variants={{
                             rest: { color: "#4b4b4b" },
-                            hover: { color: "#b41a1a" },
+                            hover: { color: "#009966" },
                         }}
                         className="font-mono text-sm pt-3 tabular-nums"
                     >
@@ -165,7 +165,7 @@ const ServiceRow = ({ item, index }) => {
                             hover: { opacity: 1, x: 0, rotate: 0 },
                         }}
                         transition={{ type: "spring", stiffness: 260, damping: 18 }}
-                        className="hidden md:block ml-auto mt-2 text-[#b41a1a]"
+                        className="hidden md:block ml-auto mt-2 text-[#009966]"
                         width="28"
                         height="28"
                         viewBox="0 0 24 24"
@@ -197,8 +197,8 @@ const ServiceRow = ({ item, index }) => {
                                 hover: {
                                     y: -4,
                                     color: "#ffffff",
-                                    borderColor: "rgba(180,26,26,0.7)",
-                                    backgroundColor: "rgba(180,26,26,0.12)",
+                                    borderColor: "rgba(0, 153, 102, .4)",
+                                    backgroundColor: "rgba(0, 153, 102, 0.12)",
                                 },
                             }}
                             transition={{ type: "spring", stiffness: 350, damping: 20 }}

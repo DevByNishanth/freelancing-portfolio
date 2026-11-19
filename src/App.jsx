@@ -7,6 +7,9 @@ import TinctureSlosh from "./components/TinctureSlosh";
 import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import { useEffect } from "react";
 import WhyChooseUs from "./components/WhyChooseUs";
+import Team from "./components/Team";
+import Contact from "./components/Contact";
+import SolarSystem from "./components/SolarSystem";
 function App() {
 
   function Counter({ value, suffix, delay }) {
@@ -225,6 +228,21 @@ function App() {
 
       {/* why choose us  */}
       <WhyChooseUs />
+
+      {/* Team  */}
+      <Team />
+
+      {/* technologies  */}
+      <SolarSystem
+        title="Technologies We Work With"
+        description="From frontend to backend, we use modern technologies to deliver scalable and reliable digital solutions."
+      />
+
+
+      {/* Contact  */}
+      <Contact />
+
+
 
     </>
   );

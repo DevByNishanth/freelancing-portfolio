@@ -1,4 +1,3 @@
-
 import VenomButton from "./buttons/VenomButton";
 import MagicRings from "./components/MagicRings";
 import Services from "./components/Services";
@@ -10,14 +9,12 @@ import WhyChooseUs from "./components/WhyChooseUs";
 import Team from "./components/Team";
 import Contact from "./components/Contact";
 import SolarSystem from "./components/SolarSystem";
+import Project from "./components/Project";
 function App() {
-
   function Counter({ value, suffix, delay }) {
     const count = useMotionValue(0);
 
-    const rounded = useTransform(count, (latest) =>
-      Math.round(latest)
-    );
+    const rounded = useTransform(count, (latest) => Math.round(latest));
 
     useEffect(() => {
       const controls = animate(count, value, {
@@ -38,7 +35,6 @@ function App() {
   }
   return (
     <>
-
       {/* hero section  */}
 
       <div className="h-screen relative bg-black ">
@@ -52,7 +48,6 @@ function App() {
           followMouse={true}
           clickBurst={true}
         />
-
 
         <div className="content-container w-[90%] text-center text-white absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] ">
           <motion.h1
@@ -106,12 +101,12 @@ function App() {
             }}
             className="text-gray-100 w-[60%] m-auto"
           >
-            We turn ideas into impactful digital experiences. From stunning websites
-            to powerful web applications, we help businesses build, evolve, and grow online.
+            We turn ideas into impactful digital experiences. From stunning
+            websites to powerful web applications, we help businesses build,
+            evolve, and grow online.
           </motion.p>
 
           <div className="button-container mt-4 flex gap-2 m-auto w-fit">
-
             <motion.div
               initial={{ opacity: 0, y: 30, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -141,10 +136,8 @@ function App() {
                 glow={45}
               />
             </motion.div>
-
           </div>
         </div>
-
 
         <motion.div
           initial="hidden"
@@ -195,9 +188,7 @@ function App() {
                 className="h-[1px] bg-[#1f1f1f] mb-3"
               />
 
-              <p className="text-gray-500 text-sm mb-1">
-                {item.label}
-              </p>
+              <p className="text-gray-500 text-sm mb-1">{item.label}</p>
 
               <Counter
                 value={item.value}
@@ -208,20 +199,18 @@ function App() {
           ))}
         </motion.div>
 
-
-
         <motion.div
           initial={{ opacity: 0, Y: 60, filter: "blur(8px)" }}
           animate={{ opacity: 1, Y: 0, filter: "blur(0px)" }}
           transition={{ delay: 1.7, duration: 1.2 }}
           className="count-container text-gray-400 absolute right-2 bottom-4 flex gap-6 w-[40%] text-[14px]"
         >
-          <p>A creative team building modern websites and digital solutions with purpose, precision, and a passion for innovation.</p>
+          <p>
+            A creative team building modern websites and digital solutions with
+            purpose, precision, and a passion for innovation.
+          </p>
         </motion.div>
-
-
-
-      </div >
+      </div>
 
       {/* services    */}
       <Services />
@@ -238,12 +227,10 @@ function App() {
         description="From frontend to backend, we use modern technologies to deliver scalable and reliable digital solutions."
       />
 
-
+      {/* Projects */}
+      <Project />
       {/* Contact  */}
       <Contact />
-
-
-
     </>
   );
 }

@@ -1,0 +1,18 @@
+/* dotted grid, faded toward the edges (same idea as team-dots, inked for a light canvas) */
+.project-dots {
+  background-image: radial-gradient(rgba(12, 26, 20, 0.14) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 15%, transparent 72%);
+  mask-image: radial-gradient(ellipse at center, #000 15%, transparent 72%);
+}
+
+/* giant outlined background word that drifts while you scroll */
+.project-ghost {
+  -webkit-text-stroke: 1px rgba(12, 26, 20, 0.09);
+  color: transparent;
+  user-select: none;
+}
+
+#projects ::selection {
+  background: rgba(0, 153, 102, 0.3);
+}

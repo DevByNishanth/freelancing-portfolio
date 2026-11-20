@@ -24,3 +24,9 @@
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
 }
+
+/* autoplay progress inside the active carousel dot */
+@keyframes team-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}

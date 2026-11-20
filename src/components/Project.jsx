@@ -14,6 +14,7 @@ import arunaImg from "../assets/projects/arunaCanvas.png";
 import avaratImg from "../assets/projects/avaratSchoolCanvas.png";
 import bookMyCabsImg from "../assets/projects/bookMyCabsCanvas.png";
 import exploreMunnarImg from "../assets/projects/exploreMunnarCanvas.png";
+import exploreMunnarDashboardImg from "../assets/projects/exploreMunnarDashboard.png";
 import shadowArrowImg from "../assets/projects/shadowArrowCanvas.png";
 
 /* =====================================================================
@@ -31,7 +32,7 @@ import shadowArrowImg from "../assets/projects/shadowArrowCanvas.png";
 const EASE = [0.22, 1, 0.36, 1];
 
 const INK = "#0c1a14"; // text + button
-const PAPER = "#f7e7e6"; // section background
+const PAPER = "#f7ebd5"; // section background
 const EMERALD_DEEP = "#007a55"; // hover fill (emerald with AA contrast for white text)
 
 /* tone  → "light" = white text (adds a soft scrim), "dark" = ink text (for yellow / amber canvases)
@@ -64,10 +65,10 @@ const projects = [
   {
     id: "explore-munnar",
     brand: "Explore Munnar",
-    title: "Stays, activities and itinerary planning for the hills.",
-    tags: ["Website", "Booking"],
+    title: "A centralized dashboard to manage stays, activities and travel operations.",
+    tags: ["Admin Dashboard", "Management"],
     img: exploreMunnarImg,
-    alt: "Explore Munnar travel website shown on a tablet",
+    alt: "Explore Munnar admin dashboard displayed on a tablet",
     tone: "light",
     scrim: "rgba(0, 25, 10, 0.4)",
     glow: "#5f8a3a",
@@ -96,13 +97,13 @@ const projects = [
     glow: "#f5c500",
     href: "#",
   },
-   {
+  {
     id: "explore-munnar",
     brand: "Explore Munnar",
-    title: "Stays, activities and itinerary planning for the hills.",
-    tags: ["Website", "Booking"],
-    img: exploreMunnarImg,
-    alt: "Explore Munnar travel website shown on a tablet",
+    title: "A centralized dashboard to manage stays, activities and travel operations.",
+    tags: ["Admin Dashboard", "Management"],
+    img: exploreMunnarDashboardImg,
+    alt: "Explore Munnar admin dashboard displayed on a tablet",
     tone: "light",
     scrim: "rgba(0, 25, 10, 0.4)",
     glow: "#5f8a3a",
@@ -322,9 +323,8 @@ const ProjectCard = ({ project, index, reduced }) => {
 
           {/* text layer */}
           <div
-            className={`pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-5 sm:p-6 lg:p-8 ${
-              light ? "text-white" : "text-[#1c1402]"
-            }`}
+            className={`pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-5 sm:p-6 lg:p-8 ${light ? "text-white" : "text-[#1c1402]"
+              }`}
           >
             <div className="max-w-[62%]">
               <MaskLine delay={0.55 + stagger}>
@@ -357,7 +357,7 @@ const ProjectCard = ({ project, index, reduced }) => {
                       },
                     }}
                     style={{ transitionDelay: `${i * 60}ms` }}
-                    className="rounded-md bg-[#0c1a14]/90 px-2.5 py-1 text-[11px] font-medium text-white transition-colors duration-300 group-hover:bg-[#007a55] group-focus-visible:bg-[#007a55]"
+                    className="rounded-md bg-[#0c1a14]/90 px-2.5 py-1 text-[11px] font-medium text-white transition-colors duration-300 group-hover:bg-[#000000] group-focus-visible:bg-[#007a55]"
                   >
                     {tag}
                   </motion.span>
@@ -379,7 +379,7 @@ const ProjectCard = ({ project, index, reduced }) => {
             >
               <span
                 aria-hidden
-                className="absolute right-1.5 top-1.5 h-8 w-8 rounded-full bg-[#0c1a14] transition-[transform,background-color] duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[14] group-hover:bg-[#007a55] group-focus-visible:scale-[14] group-focus-visible:bg-[#007a55]"
+                className="absolute right-1.5 top-1.5 h-8 w-8 rounded-full bg-[#0c1a14] transition-[transform,background-color] duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[14] group-hover:bg-[#000000] group-focus-visible:scale-[14] group-focus-visible:bg-[#007a55]"
               />
               <span className="relative z-10">View project</span>
               <Arrow className="absolute right-[14px] top-[14px] z-10 text-white transition-transform duration-500 group-hover:-rotate-45 group-focus-visible:-rotate-45" />
@@ -479,7 +479,7 @@ const Project = () => {
       ref={sectionRef}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      style={{ backgroundColor: PAPER }} 
+      style={{ backgroundColor: PAPER }}
       className="main-container relative overflow-hidden rounded-t-[32px] px-4 py-20 text-[#0c1a14] md:px-12 md:py-28"
     >
       {/* background layers */}
@@ -554,9 +554,8 @@ const Project = () => {
 
         {/* view all */}
         <div
-          className={`flex items-center gap-6 ${
-            even ? "mt-16 md:mt-44 lg:mt-52" : "mt-16 md:mt-28"
-          }`}
+          className={`flex items-center gap-6 ${even ? "mt-16 md:mt-44 lg:mt-52" : "mt-16 md:mt-28"
+            }`}
         >
           <motion.span
             aria-hidden

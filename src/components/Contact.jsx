@@ -26,7 +26,7 @@ import "./Contact.css";
 const EASE = [0.22, 1, 0.36, 1];
 
 // Where the enquiry goes.
-const CONTACT_EMAIL = "hello@yourstudio.com";
+const CONTACT_EMAIL = "softwared858@gmail.com";
 
 // Optional: a real form endpoint (Formspree, Getform, your own API...).
 // Put it in .env as VITE_CONTACT_ENDPOINT=https://formspree.io/f/xxxx
@@ -295,11 +295,11 @@ const InlineField = memo(function InlineField({
         onKeyDown={
           onEnter
             ? (e) => {
-                if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-                  e.preventDefault();
-                  onEnter(e.currentTarget);
-                }
+              if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                onEnter(e.currentTarget);
               }
+            }
             : undefined
         }
         placeholder={placeholder}
@@ -312,9 +312,8 @@ const InlineField = memo(function InlineField({
         aria-required={required || undefined}
         aria-invalid={!!error}
         aria-describedby={error ? errorId : undefined}
-        className={`col-start-1 row-start-1 w-0 min-w-full cursor-text bg-transparent px-1 text-emerald-400 outline-none ${
-          g.running ? "placeholder:text-transparent" : "placeholder:text-gray-500"
-        }`}
+        className={`col-start-1 row-start-1 w-0 min-w-full cursor-text bg-transparent px-1 text-emerald-400 outline-none ${g.running ? "placeholder:text-transparent" : "placeholder:text-gray-500"
+          }`}
       />
       {g.running && (
         <span
@@ -327,13 +326,12 @@ const InlineField = memo(function InlineField({
       )}
       <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-white/20 transition-colors duration-300 group-hover:bg-white/40" />
       <span
-        className={`pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left transition-transform duration-500 ${
-          error
-            ? "scale-x-100 bg-red-400"
-            : g.running
-              ? "scale-x-100 bg-emerald-500/50"
-              : "scale-x-0 bg-emerald-500 group-focus-within:scale-x-100"
-        }`}
+        className={`pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left transition-transform duration-500 ${error
+          ? "scale-x-100 bg-red-400"
+          : g.running
+            ? "scale-x-100 bg-emerald-500/50"
+            : "scale-x-0 bg-emerald-500 group-focus-within:scale-x-100"
+          }`}
       />
     </span>
   );
@@ -347,11 +345,10 @@ const Chip = memo(function Chip({ label, selected, onToggle, group, single, nudg
       whileTap={{ scale: 0.94 }}
       transition={{ type: "spring", stiffness: 380, damping: 20 }}
       style={nudge && !selected ? { animationDelay: `${600 + index * 110}ms` } : undefined}
-      className={`${nudge && !selected ? "chip-nudge " : ""}relative cursor-pointer touch-manipulation select-none overflow-hidden rounded-full border px-4 py-2 text-sm transition-colors duration-300 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-600/50 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-black ${
-        selected
-          ? "border-emerald-600 text-white"
-          : "border-white/15 text-gray-400 hover:border-emerald-600/50 hover:text-white"
-      }`}
+      className={`${nudge && !selected ? "chip-nudge " : ""}relative cursor-pointer touch-manipulation select-none overflow-hidden rounded-full border px-4 py-2 text-sm transition-colors duration-300 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald-600/50 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-black ${selected
+        ? "border-emerald-600 text-white"
+        : "border-white/15 text-gray-400 hover:border-emerald-600/50 hover:text-white"
+        }`}
     >
       <input
         type={single ? "radio" : "checkbox"}
@@ -464,9 +461,8 @@ const IdeaField = memo(function IdeaField({ name = "idea", value, onChange, labe
         placeholder="Write a little about your project..."
         aria-labelledby={labelledBy}
         aria-describedby={describedBy}
-        className={`block w-full cursor-text resize-none overflow-hidden bg-transparent pb-3 text-lg leading-relaxed text-emerald-400 outline-none md:text-xl ${
-          g.running ? "placeholder:text-transparent" : "placeholder:text-gray-500"
-        }`}
+        className={`block w-full cursor-text resize-none overflow-hidden bg-transparent pb-3 text-lg leading-relaxed text-emerald-400 outline-none md:text-xl ${g.running ? "placeholder:text-transparent" : "placeholder:text-gray-500"
+          }`}
       />
       {g.running && (
         <span
@@ -479,9 +475,8 @@ const IdeaField = memo(function IdeaField({ name = "idea", value, onChange, labe
       )}
       <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-white/20 transition-colors duration-300 group-hover:bg-white/40" />
       <span
-        className={`pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left transition-transform duration-500 group-focus-within:scale-x-100 ${
-          g.running ? "scale-x-100 bg-emerald-500/50" : "scale-x-0 bg-emerald-500"
-        }`}
+        className={`pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left transition-transform duration-500 group-focus-within:scale-x-100 ${g.running ? "scale-x-100 bg-emerald-500/50" : "scale-x-0 bg-emerald-500"
+          }`}
       />
     </div>
   );

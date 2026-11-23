@@ -247,6 +247,7 @@ function App() {
         />
 
         <Route path="/projects" element={<ProjectListing />} />
+        <Route path="/projects/:id" element={<></>} />
       </Routes>
     </>
   );

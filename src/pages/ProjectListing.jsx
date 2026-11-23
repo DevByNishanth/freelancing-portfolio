@@ -16,6 +16,7 @@ import shadowArrowImg from "../assets/projects/shadowArrowCanvas.png";
 import crossCurrencyCanvas from "../assets/projects/crossCurrencyCanvas.png";
 import eventsCanvas from "../assets/projects/eventsCanvas.png";
 import lmsCanvas from "../assets/projects/lmsCanvas.png";
+import hrmsCanvas from "../assets/projects/hrmsCanvas.png";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import ProjectForm from "@/components/ProjectForm";
@@ -125,6 +126,17 @@ const projects = [
       "A currency conversion and financial data platform.",
     tags: ["Trading", "Admin Dashboard"],
     img: crossCurrencyCanvas,
+    alt: "Explore Munnar management dashboard",
+    glow: "#5f8a3a",
+    href: "#",
+  },
+  {
+    id: "human-resource",
+    brand: "HR Management System",
+    title:
+      "A platform to streamline employee management and HR operations.",
+    tags: ["Management", "Admin Dashboard"],
+    img: hrmsCanvas,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
     href: "#",

@@ -13,6 +13,9 @@ import bookMyCabsImg from "../assets/projects/bookMyCabsCanvas.png";
 import exploreMunnarImg from "../assets/projects/exploreMunnarCanvas.png";
 import exploreMunnarDashboardImg from "../assets/projects/exploreMunnarDashboard.png";
 import shadowArrowImg from "../assets/projects/shadowArrowCanvas.png";
+import crossCurrencyCanvas from "../assets/projects/crossCurrencyCanvas.png";
+import eventsCanvas from "../assets/projects/eventsCanvas.png";
+import lmsCanvas from "../assets/projects/lmsCanvas.png";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import ProjectForm from "@/components/ProjectForm";
@@ -56,7 +59,7 @@ const projects = [
     brand: "Explore Munnar",
     title:
       "A centralized dashboard to manage stays, activities and travel operations.",
-    tags: ["Admin Dashboard", "Management"],
+    tags: ["Website", "Web"],
     img: exploreMunnarImg,
     alt: "Explore Munnar admin dashboard displayed on a tablet",
     glow: "#5f8a3a",
@@ -83,6 +86,17 @@ const projects = [
     href: "#",
   },
   {
+    id: "learning-management",
+    brand: "Learning Management System",
+    title:
+      "A platform to simplify learning and assignments for college students.",
+    tags: ["Management", "Admin Dashboard"],
+    img: lmsCanvas,
+    alt: "Explore Munnar management dashboard",
+    glow: "#5f8a3a",
+    href: "#",
+  },
+  {
     id: "explore-munnar-dashboard",
     brand: "Explore Munnar",
     title:
@@ -93,6 +107,29 @@ const projects = [
     glow: "#5f8a3a",
     href: "#",
   },
+  {
+    id: "event-management",
+    brand: "Event Management System",
+    title:
+      "A platform to simplify event planning and management.",
+    tags: ["Management", "Admin Dashboard"],
+    img: eventsCanvas,
+    alt: "Explore Munnar management dashboard",
+    glow: "#5f8a3a",
+    href: "#",
+  },
+  {
+    id: "cross-currency",
+    brand: "Cross currency",
+    title:
+      "A currency conversion and financial data platform.",
+    tags: ["Trading", "Admin Dashboard"],
+    img: crossCurrencyCanvas,
+    alt: "Explore Munnar management dashboard",
+    glow: "#5f8a3a",
+    href: "#",
+  },
+
 ];
 
 // --------------------------------------------------
@@ -179,11 +216,11 @@ const ProjectCard = ({ project, index }) => {
         reducedMotion
           ? false
           : {
-              opacity: 0,
-              y: 80,
-              scale: 0.94,
-              filter: "blur(10px)",
-            }
+            opacity: 0,
+            y: 80,
+            scale: 0.94,
+            filter: "blur(10px)",
+          }
       }
       whileInView={{
         opacity: 1,
@@ -208,9 +245,9 @@ const ProjectCard = ({ project, index }) => {
         reducedMotion
           ? undefined
           : {
-              y: -8,
-              transition: { duration: 0.4, ease: EASE },
-            }
+            y: -8,
+            transition: { duration: 0.4, ease: EASE },
+          }
       }
       className="project-card group relative cursor-pointer"
     >
@@ -310,9 +347,9 @@ export const ProjectListing = () => {
           reducedMotion
             ? { opacity: 0.25 }
             : {
-                scale: [1, 1.15, 1],
-                opacity: [0.2, 0.4, 0.2],
-              }
+              scale: [1, 1.15, 1],
+              opacity: [0.2, 0.4, 0.2],
+            }
         }
         transition={{
           duration: 9,
@@ -415,11 +452,10 @@ export const ProjectListing = () => {
                 onClick={() => setActiveTab(item)}
                 whileHover={reducedMotion ? undefined : { y: -3 }}
                 whileTap={reducedMotion ? undefined : { scale: 0.96 }}
-                className={`relative overflow-hidden rounded-full border px-4 py-2 text-sm transition-colors duration-300 ${
-                  isActive
-                    ? "border-white text-black"
-                    : "border-gray-800/70 text-gray-400 hover:border-gray-500 hover:text-white"
-                }`}
+                className={`relative overflow-hidden rounded-full border px-4 py-2 text-sm transition-colors duration-300 ${isActive
+                  ? "border-white text-black"
+                  : "border-gray-800/70 text-gray-400 hover:border-gray-500 hover:text-white"
+                  }`}
               >
                 {isActive && (
                   <motion.span
@@ -495,7 +531,7 @@ export const ProjectListing = () => {
         </div>
       </div>
 
-      <Contact /> 
+      <Contact />
       <Footer />
       <ProjectForm open={isProjectFormOpen} onClose={() => setIsProjectFormOpen(false)} />
     </main>

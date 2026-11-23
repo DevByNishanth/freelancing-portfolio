@@ -1,5 +1,17 @@
 'use client';
 
+/* Lanyard — performance-oriented build
+
+   All <Lanyard /> instances on the page share ONE WebGLRenderer (one GL context):
+   - the environment map (PMREM) is built once,
+   - shader programs are compiled once and reused,
+   - card / clamp / ring geometry and the grain / weave pixel data are cached.
+   Each instance renders its own scene into a sub-rectangle of the shared (off-screen) canvas and
+   copies the result to its own visible 2D canvas, so layout, pointer handling and the look are
+   unchanged. The shared renderer is released a few seconds after the last instance unmounts.
+
+   Extra props: pixelRatio (max DPR), fps (0 = uncapped), onReady (fires after the first drawn frame). */
+
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
@@ -13,6 +25,7 @@ const BEVEL = 0.007;
 const JOINTS = 4;
 const NODE_WEIGHT = 1 / 0.05;
 const MAX_STEP = 1 / 960;
+const MAX_STEP_LOW = 1 / 600; // used for fps-capped (background) cards
 const ITERATIONS = 2;
 const SAMPLES = 72;
 const FOV = 24;
@@ -148,20 +161,31 @@ const METALS = {
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const mix = (a, b, t) => a + (b - a) * t;
 
+/* parsed colours are cached (the old version created a canvas on every call) */
+const colorCache = new Map();
+let colorCtx = null;
 const parseColor = (value, fallback) => {
+  const key = String(value);
+  const hit = colorCache.get(key);
+  if (hit) return hit;
   try {
-    const ctx = document.createElement('canvas').getContext('2d');
+    colorCtx = colorCtx || document.createElement('canvas').getContext('2d');
+    const ctx = colorCtx;
     if (!ctx) return fallback;
     ctx.fillStyle = '#000000';
     ctx.fillStyle = value;
     const resolved = ctx.fillStyle;
+    let rgb;
     if (resolved.startsWith('#')) {
       const n = parseInt(resolved.slice(1), 16);
-      return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+      rgb = [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+    } else {
+      const parts = resolved.match(/[\d.]+/g);
+      if (!parts || parts.length < 3) return fallback;
+      rgb = [Number(parts[0]) / 255, Number(parts[1]) / 255, Number(parts[2]) / 255];
     }
-    const parts = resolved.match(/[\d.]+/g);
-    if (!parts || parts.length < 3) return fallback;
-    return [Number(parts[0]) / 255, Number(parts[1]) / 255, Number(parts[2]) / 255];
+    colorCache.set(key, rgb);
+    return rgb;
   } catch {
     return fallback;
   }
@@ -327,6 +351,79 @@ const buildEnvironment = renderer => {
   return target;
 };
 
+/* ---------- shared renderer + resource cache ---------- */
+
+const shared = { current: null, refs: 0, timer: 0 };
+const resources = new Map();
+
+const shareResource = (key, build, dispose) => {
+  let entry = resources.get(key);
+  if (!entry) {
+    entry = { value: build(), dispose };
+    resources.set(key, entry);
+  }
+  return entry.value;
+};
+
+const acquireShared = () => {
+  clearTimeout(shared.timer);
+  if (!shared.current) {
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas: document.createElement('canvas'),
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance'
+      });
+    } catch {
+      return null;
+    }
+    renderer.setPixelRatio(1); // device pixels are handled per instance
+    renderer.setClearColor(0x000000, 0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.NeutralToneMapping;
+    renderer.toneMappingExposure = 1;
+    renderer.domElement.addEventListener('webglcontextlost', event => event.preventDefault());
+    const environment = buildEnvironment(renderer);
+    renderer.setScissorTest(true); // every render draws into a sub-rectangle
+    shared.current = {
+      renderer,
+      environment,
+      width: 0,
+      height: 0,
+      anisotropy: Math.min(8, renderer.capabilities.getMaxAnisotropy())
+    };
+  }
+  shared.refs += 1;
+  return shared.current;
+};
+
+const releaseShared = () => {
+  shared.refs = Math.max(0, shared.refs - 1);
+  if (shared.refs > 0 || !shared.current) return;
+  clearTimeout(shared.timer);
+  // keep it alive briefly: cards unmount and remount as the carousel moves
+  shared.timer = setTimeout(() => {
+    if (shared.refs > 0 || !shared.current) return;
+    const { renderer, environment } = shared.current;
+    resources.forEach(entry => entry.dispose?.(entry.value));
+    resources.clear();
+    environment.dispose();
+    renderer.dispose();
+    renderer.forceContextLoss();
+    shared.current = null;
+  }, 6000);
+};
+
+const ensureBuffer = (gl, width, height) => {
+  if (width > gl.width || height > gl.height) {
+    gl.width = Math.max(gl.width, width);
+    gl.height = Math.max(gl.height, height);
+    gl.renderer.setSize(gl.width, gl.height, false);
+  }
+};
+
 const makeCanvasTexture = (canvas, anisotropy) => {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -334,13 +431,17 @@ const makeCanvasTexture = (canvas, anisotropy) => {
   return texture;
 };
 
-const buildGrainTexture = () => {
+/* grain + weave: the expensive pixel work runs once, each instance gets its own cheap texture */
+let grainCanvas = null;
+const getGrainCanvas = () => {
+  if (grainCanvas) return grainCanvas;
   const size = 128;
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
+  grainCanvas = canvas;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return new THREE.CanvasTexture(canvas);
+  if (!ctx) return canvas;
   const random = seeded(7);
   const field = Float32Array.from({ length: size * size }, () => random());
   const height = (x, y) => {
@@ -364,15 +465,22 @@ const buildGrainTexture = () => {
     }
   }
   ctx.putImageData(image, 0, 0);
-  const texture = new THREE.CanvasTexture(canvas);
+  return canvas;
+};
+
+const makeGrainTexture = () => {
+  const texture = new THREE.CanvasTexture(getGrainCanvas());
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(5, 7);
   return texture;
 };
 
-const buildWeaveTexture = () => {
-  const size = 128;
+let weaveData = null;
+const WEAVE_SIZE = 128;
+const getWeaveData = () => {
+  if (weaveData) return weaveData;
+  const size = WEAVE_SIZE;
   const threads = 8;
   const random = seeded(19);
   const fiber = Float32Array.from({ length: size * size }, () => random());
@@ -404,7 +512,12 @@ const buildWeaveTexture = () => {
       data[i + 3] = 255;
     }
   }
-  const texture = new THREE.DataTexture(data, size, size);
+  weaveData = data;
+  return data;
+};
+
+const makeWeaveTexture = () => {
+  const texture = new THREE.DataTexture(getWeaveData(), WEAVE_SIZE, WEAVE_SIZE);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
   texture.magFilter = THREE.LinearFilter;
@@ -608,8 +721,8 @@ const configureSimulation = (sim, layout, length) => {
   body.hang.set(0, layout.hangY, 0);
 };
 
-const stepSimulation = (sim, dt, physics, time) => {
-  const steps = Math.max(1, Math.ceil(dt / MAX_STEP - 1e-6));
+const stepSimulation = (sim, dt, physics, time, maxStep) => {
+  const steps = Math.max(1, Math.ceil(dt / maxStep - 1e-6));
   const h = dt / steps;
   const { nodes, previous, velocities, body } = sim;
   const windX = physics.breeze * (Math.sin(time * 0.53) * 0.7 + Math.sin(time * 1.31 + 1.7) * 0.3) * 3;
@@ -720,12 +833,17 @@ const Lanyard = ({
   breeze = 0.5,
   interactive = true,
   intro = true,
+  pixelRatio = 2, // max device pixel ratio
+  fps = 0, // 0 = every frame; otherwise caps rendering + physics rate
+  onReady, // called once, after the first frame with images painted
   className = '',
   style
 }) => {
   const containerRef = useRef(null);
   const settingsRef = useRef(null);
   const applyRef = useRef(null);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   settingsRef.current = {
     frontImage,
@@ -747,7 +865,9 @@ const Lanyard = ({
     elasticity,
     breeze,
     interactive,
-    intro
+    intro,
+    pixelRatio,
+    fps
   };
 
   useEffect(() => {
@@ -758,25 +878,22 @@ const Lanyard = ({
     const container = containerRef.current;
     if (!container) return undefined;
 
-    let renderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    } catch {
-      return undefined;
-    }
-    renderer.setClearColor(0x000000, 0);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.NeutralToneMapping;
-    renderer.toneMappingExposure = 1;
-    const canvas = renderer.domElement;
+    const gl = acquireShared();
+    if (!gl) return undefined;
+
+    const canvas = document.createElement('canvas');
     canvas.className = 'block w-full h-full';
     canvas.setAttribute('aria-hidden', 'true');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      releaseShared();
+      return undefined;
+    }
     container.appendChild(canvas);
 
-    const anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    const anisotropy = gl.anisotropy;
     const scene = new THREE.Scene();
-    const environment = buildEnvironment(renderer);
-    scene.environment = environment.texture;
+    scene.environment = gl.environment.texture;
     const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 200);
     const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
     keyLight.position.set(-2.5, 4, 6);
@@ -794,8 +911,8 @@ const Lanyard = ({
     const strapTexture = makeCanvasTexture(strapCanvas, anisotropy);
     strapTexture.wrapS = THREE.ClampToEdgeWrapping;
     strapTexture.wrapT = THREE.RepeatWrapping;
-    const grain = buildGrainTexture();
-    const weave = buildWeaveTexture();
+    const grain = makeGrainTexture();
+    const weave = makeWeaveTexture();
     const foilUniforms = {
       foilStrength: { value: 0 },
       foilAspect: { value: 1.4 },
@@ -838,11 +955,23 @@ const Lanyard = ({
       side: THREE.DoubleSide
     });
 
+    const disposeGeometry = geometry => geometry.dispose();
+    const ringGeometry = shareResource(
+      'ring',
+      () => new THREE.TorusGeometry(RING_RADIUS, RING_TUBE, 18, 72),
+      disposeGeometry
+    );
+    const eyeletGeometry = shareResource(
+      'eyelet',
+      () => new THREE.TorusGeometry(EYELET_RADIUS, 0.0105, 14, 40),
+      disposeGeometry
+    );
+
     const cardGroup = new THREE.Group();
     const bodyMesh = new THREE.Mesh(undefined, edgeMaterial);
     const frontMesh = new THREE.Mesh(undefined, frontMaterial);
     const backMesh = new THREE.Mesh(undefined, backMaterial);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(RING_RADIUS, RING_TUBE, 18, 72), metalMaterial);
+    const ring = new THREE.Mesh(ringGeometry, metalMaterial);
     ring.rotation.y = Math.PI / 2 - 0.7;
     cardGroup.add(bodyMesh, frontMesh, backMesh, ring);
     scene.add(cardGroup);
@@ -853,9 +982,9 @@ const Lanyard = ({
     scene.add(band);
 
     const clampGroup = new THREE.Group();
-    const clampMesh = new THREE.Mesh(buildClampGeometry(STRAP_WIDTH), metalMaterial);
+    const clampMesh = new THREE.Mesh(undefined, metalMaterial);
     clampMesh.position.y = EYELET_RADIUS + CLAMP_BODY / 2 - 0.004;
-    const eyelet = new THREE.Mesh(new THREE.TorusGeometry(EYELET_RADIUS, 0.0105, 14, 40), metalMaterial);
+    const eyelet = new THREE.Mesh(eyeletGeometry, metalMaterial);
     clampGroup.add(clampMesh, eyelet);
     scene.add(clampGroup);
 
@@ -869,8 +998,10 @@ const Lanyard = ({
     let applied = {};
     let strapScale = STRAP_WIDTH;
     let tileRatio = 2;
+    let ratio = 1;
     let raf = 0;
     let last = performance.now();
+    let lastFrame = 0;
     let time = 0;
     let visible = true;
     let alive = true;
@@ -878,7 +1009,20 @@ const Lanyard = ({
     let hovering = false;
     let press = null;
     let imageToken = 0;
+    let imagesReady = false;
+    let readyFired = false;
+    let sized = false;
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+    // nothing is drawn until the images are in (avoids a blank first upload and a flash)
+    const drawable = () => imagesReady || !settingsRef.current.frontImage;
+    const wantedRatio = () => Math.min(window.devicePixelRatio || 1, settingsRef.current.pixelRatio);
+
+    const setCanvasSize = () => {
+      ratio = wantedRatio();
+      canvas.width = Math.max(1, Math.round(view.width * ratio));
+      canvas.height = Math.max(1, Math.round(view.height * ratio));
+    };
 
     const paintFaces = () => {
       const s = settingsRef.current;
@@ -936,23 +1080,45 @@ const Lanyard = ({
 
     const apply = () => {
       const s = settingsRef.current;
+
+      // pixel ratio can change live (a card moving to or from the centre)
+      if (sized && ratio !== wantedRatio()) {
+        setCanvasSize();
+        if (drawable()) render();
+      }
+
       const layoutKey = `${s.orientation}|${s.cornerRadius}`;
+      const framingKey = `${layoutKey}|${s.size}|${s.anchor}|${s.strapLength}|${view.width}|${view.height}`;
+      const imageKey = `${s.frontImage}|${s.backImage}|${s.strapImage}`;
+      const faceKey = `${layoutKey}|${s.cardColor}|${s.imageFit}`;
+      const lookKey = `${s.finish}|${s.metal}|${s.cardColor}|${s.strapWidth}|${s.interactive}|${s.breeze > 0}`;
+      const dirty =
+        layoutKey !== applied.layoutKey ||
+        framingKey !== applied.framingKey ||
+        imageKey !== applied.imageKey ||
+        faceKey !== applied.faceKey ||
+        s.strapColor !== applied.strapColor ||
+        lookKey !== applied.lookKey;
+
       if (layoutKey !== applied.layoutKey) {
         layout = cardLayout(s.orientation, s.cornerRadius);
-        const geometry = buildCardGeometry(layout);
-        bodyMesh.geometry.dispose();
-        frontMesh.geometry.dispose();
-        backMesh.geometry.dispose();
+        const geometry = shareResource(
+          `card|${layoutKey}`,
+          () => buildCardGeometry(layout),
+          value => {
+            value.body.dispose();
+            value.face.dispose();
+          }
+        );
         bodyMesh.geometry = geometry.body;
         frontMesh.geometry = geometry.face;
-        backMesh.geometry = geometry.face.clone();
+        backMesh.geometry = geometry.face;
         frontMesh.position.z = THICKNESS / 2 + BEVEL + 0.0006;
         backMesh.rotation.y = Math.PI;
         backMesh.position.z = -(THICKNESS / 2 + BEVEL + 0.0006);
         ring.position.set(0, layout.ringY, 0);
         applied.framingKey = '';
       }
-      const framingKey = `${layoutKey}|${s.size}|${s.anchor}|${s.strapLength}|${view.width}|${view.height}`;
       if (framingKey !== applied.framingKey) {
         frameView();
         if (!placed) {
@@ -963,7 +1129,6 @@ const Lanyard = ({
         }
       }
 
-      const imageKey = `${s.frontImage}|${s.backImage}|${s.strapImage}`;
       if (imageKey !== applied.imageKey) {
         const token = ++imageToken;
         Promise.all([
@@ -975,42 +1140,47 @@ const Lanyard = ({
           images.front = front;
           images.back = back;
           images.strap = strap;
+          imagesReady = true;
           paintFaces();
           repaintStrap();
         });
       }
-      const faceKey = `${layoutKey}|${s.cardColor}|${s.imageFit}`;
-      if (faceKey !== applied.faceKey) paintFaces();
-      if (s.strapColor !== applied.strapColor) repaintStrap();
+      if (faceKey !== applied.faceKey && drawable()) paintFaces();
+      if (s.strapColor !== applied.strapColor && drawable()) repaintStrap();
 
-      const finish = FINISHES[s.finish] || FINISHES.glossy;
-      const card = parseColor(s.cardColor, [1, 1, 1]);
-      [frontMaterial, backMaterial].forEach(material => {
-        material.roughness = finish.roughness;
-        material.metalness = finish.metalness;
-        material.clearcoat = finish.clearcoat;
-        material.clearcoatRoughness = finish.clearcoatRoughness;
-        material.anisotropy = finish.anisotropy;
-      });
-      foilUniforms.foilStrength.value = finish.foil;
-      foilUniforms.foilAspect.value = layout.height / layout.width;
-      edgeMaterial.color.setRGB(card[0] * 0.92, card[1] * 0.92, card[2] * 0.92, THREE.SRGBColorSpace);
-      edgeMaterial.roughness = Math.min(finish.roughness, 0.35);
-      edgeMaterial.metalness = finish.metalness;
-      edgeMaterial.clearcoat = 1;
-      edgeMaterial.clearcoatRoughness = 0.08;
-      const metalLook = METALS[s.metal] || METALS.silver;
-      metalMaterial.color.set(metalLook.color);
-      metalMaterial.roughness = metalLook.roughness;
-      strapScale = STRAP_WIDTH * clamp(s.strapWidth, 0.4, 2);
-      if (strapScale !== applied.strapScale) {
-        clampMesh.geometry.dispose();
-        clampMesh.geometry = buildClampGeometry(strapScale);
+      if (lookKey !== applied.lookKey || layoutKey !== applied.layoutKey) {
+        const finish = FINISHES[s.finish] || FINISHES.glossy;
+        const card = parseColor(s.cardColor, [1, 1, 1]);
+        [frontMaterial, backMaterial].forEach(material => {
+          material.roughness = finish.roughness;
+          material.metalness = finish.metalness;
+          material.clearcoat = finish.clearcoat;
+          material.clearcoatRoughness = finish.clearcoatRoughness;
+          material.anisotropy = finish.anisotropy;
+        });
+        foilUniforms.foilStrength.value = finish.foil;
+        foilUniforms.foilAspect.value = layout.height / layout.width;
+        edgeMaterial.color.setRGB(card[0] * 0.92, card[1] * 0.92, card[2] * 0.92, THREE.SRGBColorSpace);
+        edgeMaterial.roughness = Math.min(finish.roughness, 0.35);
+        edgeMaterial.metalness = finish.metalness;
+        edgeMaterial.clearcoat = 1;
+        edgeMaterial.clearcoatRoughness = 0.08;
+        const metalLook = METALS[s.metal] || METALS.silver;
+        metalMaterial.color.set(metalLook.color);
+        metalMaterial.roughness = metalLook.roughness;
+        strapScale = STRAP_WIDTH * clamp(s.strapWidth, 0.4, 2);
+        if (strapScale !== applied.strapScale) {
+          clampMesh.geometry = shareResource(
+            `clamp|${strapScale}`,
+            () => buildClampGeometry(strapScale),
+            disposeGeometry
+          );
+        }
+        canvas.style.touchAction = s.interactive ? 'pan-y' : 'auto';
       }
-      canvas.style.touchAction = s.interactive ? 'pan-y' : 'auto';
 
-      applied = { layoutKey, framingKey, imageKey, faceKey, strapColor: s.strapColor, strapScale };
-      start();
+      applied = { layoutKey, framingKey, imageKey, faceKey, lookKey, strapColor: s.strapColor, strapScale };
+      if (dirty) start();
     };
 
     const points = Array.from({ length: SAMPLES }, () => new THREE.Vector3());
@@ -1092,11 +1262,25 @@ const Lanyard = ({
       clampGroup.position.copy(hang);
     };
 
+    /* render this scene into the bottom-left corner of the shared canvas, then copy it across */
     const render = () => {
       cardGroup.position.copy(sim.body.position);
       cardGroup.quaternion.copy(sim.body.quaternion);
       updateBand();
+      const pw = canvas.width;
+      const ph = canvas.height;
+      const { renderer } = gl;
+      ensureBuffer(gl, pw, ph);
+      renderer.setViewport(0, 0, pw, ph);
+      renderer.setScissor(0, 0, pw, ph);
       renderer.render(scene, camera);
+      ctx.clearRect(0, 0, pw, ph);
+      ctx.drawImage(renderer.domElement, 0, gl.height - ph, pw, ph, 0, 0, pw, ph);
+      // images are painted and shaders compiled: tell the parent this card has drawn
+      if (imagesReady && !readyFired) {
+        readyFired = true;
+        requestAnimationFrame(() => onReadyRef.current?.());
+      }
     };
 
     const physics = () => {
@@ -1129,11 +1313,20 @@ const Lanyard = ({
     const tick = now => {
       raf = 0;
       if (!alive) return;
+
+      // optional frame cap; skipped frames leave `last` alone so dt covers the gap
+      const fpsCap = settingsRef.current.fps;
+      if (fpsCap > 0 && now - lastFrame < 1000 / fpsCap - 1) {
+        if (visible) raf = requestAnimationFrame(tick);
+        return;
+      }
+      lastFrame = now;
+
       const dt = Math.min(1 / 30, Math.max(1 / 240, (now - last) / 1000));
       last = now;
       time += dt;
       const current = physics();
-      stepSimulation(sim, dt, current, time);
+      stepSimulation(sim, dt, current, time, fpsCap > 0 ? MAX_STEP_LOW : MAX_STEP);
       const body = sim.body;
       if (!Number.isFinite(body.position.x + body.position.y + body.position.z + body.quaternion.w)) {
         sim.grab = null;
@@ -1145,7 +1338,7 @@ const Lanyard = ({
     };
 
     const start = () => {
-      if (raf || !visible || !alive) return;
+      if (raf || !visible || !alive || !drawable()) return;
       sim.calm = 0;
       last = performance.now();
       raf = requestAnimationFrame(tick);
@@ -1242,12 +1435,15 @@ const Lanyard = ({
     canvas.addEventListener('touchstart', onTouchStart, { passive: false });
 
     const resize = () => {
-      view.width = Math.max(1, container.clientWidth);
-      view.height = Math.max(1, container.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.setSize(view.width, view.height, false);
+      const width = Math.max(1, container.clientWidth);
+      const height = Math.max(1, container.clientHeight);
+      if (sized && width === view.width && height === view.height) return;
+      view.width = width;
+      view.height = height;
+      setCanvasSize();
+      sized = true;
       apply();
-      render();
+      if (drawable()) render();
     };
 
     const resizeObserver = new ResizeObserver(resize);
@@ -1278,12 +1474,12 @@ const Lanyard = ({
       canvas.removeEventListener('pointercancel', onPointerUp);
       canvas.removeEventListener('lostpointercapture', onPointerUp);
       canvas.removeEventListener('touchstart', onTouchStart);
-      [bodyMesh, frontMesh, backMesh, ring, clampMesh, eyelet, band].forEach(mesh => mesh.geometry?.dispose());
+      // geometry shared through the cache stays; only per-instance GPU objects are released
+      bandGeometry.dispose();
       [frontMaterial, backMaterial, edgeMaterial, metalMaterial, bandMaterial].forEach(material => material.dispose());
       [frontTexture, backTexture, strapTexture, grain, weave].forEach(texture => texture.dispose());
-      environment.dispose();
-      renderer.dispose();
       if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+      releaseShared();
     };
   }, []);
 
@@ -1293,3 +1489,4 @@ const Lanyard = ({
 };
 
 export default Lanyard;
+  

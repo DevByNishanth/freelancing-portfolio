@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   useInView,
@@ -6,13 +6,12 @@ import {
   useSpring,
   useTransform,
   useMotionValue,
-  useMotionTemplate,
   useReducedMotion,
 } from "motion/react";
 
 // shadcn put the file at ./Lanyard — if yours landed in ./ui, change this path
 import Lanyard from "./Lanyard";
-import { buildCardFaces } from "../utils/cardFaces";
+import { buildCardFace } from "../utils/cardFaces";
 import "./Team.css";
 
 import myImg from "../assets/my.png";
@@ -25,80 +24,65 @@ import venkat from "../assets/venkat.png";
 
 const EASE = [0.22, 1, 0.36, 1];
 
-// Team members — one lanyard each. `id` must be unique.
-// Swap avatarUrl for a real photo of each person (square or portrait, 800px+ looks best).
+// Team members — one lanyard each. `id` is assigned from the index below.
+// TODO: replace each email with the person's real address (printed on the back of the card).
 const teamMembers = [
   {
-    id: 1,
     name: "Nishanth",
     title: "Full Stack Developer",
     handle: "nishanth",
     status: "Available",
-    statusColor: "#22c55e",
     avatarUrl: myImg,
     email: "nishanth@example.com",
   },
   {
-    id: 1,
     name: "Sathiya",
-    title: "Software Developer",
+    title: "Backend Engineer",
     handle: "sathiya",
     status: "Available",
-    statusColor: "#22c55e",
     avatarUrl: sathiya,
-    email: "nishanth@example.com",
+    email: "sathiya@example.com",
   },
   {
-    id: 1,
     name: "Deepak",
     title: "WordPress & Shopify developer",
     handle: "deepak",
     status: "Available",
-    statusColor: "#22c55e",
     avatarUrl: deepak,
-    email: "nishanth@example.com",
+    email: "deepak@example.com",
   },
   {
-    id: 1,
     name: "Abishek",
     title: "Software Developer",
     handle: "abi",
     status: "Available",
-    statusColor: "#22c55e",
     avatarUrl: abi,
-    email: "nishanth@example.com",
+    email: "abishek@example.com",
   },
   {
-    id: 1,
     name: "Fayaz",
     title: "Full stack Developer",
     handle: "fayaz",
     status: "Available",
-    statusColor: "#22c55e",
     avatarUrl: faya,
-    email: "nishanth@example.com",
+    email: "fayaz@example.com",
   },
   {
-    id: 1,
     name: "Dharshan",
-    title: "Software Developer",
+    title: "Wordpress / Mobile App Developer",
     handle: "dharshan",
     status: "Available",
-    statusColor: "#22c55e",
     avatarUrl: dharshan,
-    email: "nishanth@example.com",
+    email: "dharshan@example.com",
   },
   {
-    id: 1,
     name: "Venkatesh",
     title: "UI/UX Designer",
     handle: "venkat",
     status: "Available",
-    statusColor: "#22c55e",
     avatarUrl: venkat,
-    email: "nishanth@example.com",
+    email: "venkat@example.com",
   },
-
 ].map((m, i) => ({ ...m, id: i + 1, statusColor: "#22c55e" }));
 
 const marqueeItems = [
@@ -169,10 +153,18 @@ const AnimatedHeading = ({ text }) => {
 };
 
 /* --------------------------------
-   Lanyard carousel
-   One <Lanyard /> per member. Each card keeps its own physics and is moved
-   with transforms (origin = the strap's top, so side cards swing like a
-   pendulum). Centre card is interactive; click a side card to bring it in.
+   Lanyard carousel — loading strategy
+
+   All <Lanyard /> instances share ONE WebGL context (see Lanyard.jsx): the environment map, shader
+   programs and geometry are built once, so adding a card is cheap. On top of that:
+
+   1. Card faces are painted lazily, one member at a time, nearest to the centre first, and only
+      after the carousel has scrolled into view (see utils/cardFaces.js).
+   2. Only cards that can actually be seen get a Lanyard (centre + 1 or 2 either side).
+   3. They appear in waves, each one after the previous wave has drawn its first frame (onReady).
+   4. The centre card renders at 60 fps / DPR 2; side cards at 30 fps / DPR 1.5 with a cheaper
+      physics step. They are dimmed and scaled down, so the difference isn't visible.
+   5. A card that leaves the visible range is unmounted after its fade-out finishes.
 --------------------------------- */
 
 const STEP_MS = 4500; // autoplay interval
@@ -182,13 +174,80 @@ const DIM = [1, 0.72, 0.5];
 const FADE = [1, 0.95, 0.8];
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
-const Slide = ({ member, face, off, range, cw, height, onSelect }) => {
+const FADE_OUT_MS = 750; // matches the slide's fade, so a card never pops out
+const ENTER_DELAY_MS = 120; // lets the slide animation get going before a new scene is built
+const WAVE_GAP_MS = 160; // breathing room between waves
+const WAVE_TIMEOUT_MS = 3000; // never wait forever on one wave
+
+/* true after `inDelay` once `on` becomes true; false `outDelay` after it becomes false */
+const useHold = (on, inDelay, outDelay) => {
+  const [value, setValue] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setValue(on), on ? inDelay : outDelay);
+    return () => clearTimeout(t);
+  }, [on, inDelay, outDelay]);
+  return value;
+};
+
+/* Builds card faces lazily, in the order given, and returns { [id]: faces } as they become ready */
+const useCardFaces = (members, order, enabled) => {
+  const [faces, setFaces] = useState({});
+  const requested = useRef(new Set());
+  const alive = useRef(true);
+  const orderKey = order.join(",");
+
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+    order.forEach((index) => {
+      const member = members[index];
+      if (!member || requested.current.has(member.id)) return;
+      requested.current.add(member.id);
+      buildCardFace(member)
+        .then((f) => {
+          if (alive.current) setFaces((prev) => ({ ...prev, [member.id]: f }));
+        })
+        .catch(() => requested.current.delete(member.id));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderKey, enabled, members]);
+
+  return faces;
+};
+
+const Slide = memo(function Slide({
+  member,
+  face,
+  off,
+  range,
+  mount,
+  cw,
+  height,
+  onSelect,
+  onReady,
+}) {
   const prev = useRef(off);
   // a member that wraps from one end to the other fades in instead of sweeping across
   const wrapped = Math.abs(off - prev.current) > 1.5;
   useEffect(() => {
     prev.current = off;
   }, [off]);
+
+  const live = useHold(
+    mount && !!face,
+    off === 0 ? 0 : ENTER_DELAY_MS,
+    FADE_OUT_MS,
+  );
+  const handleReady = useCallback(
+    () => onReady(member.id),
+    [onReady, member.id],
+  );
 
   const abs = Math.min(Math.abs(off), 2);
   const sign = Math.sign(off);
@@ -209,17 +268,22 @@ const Slide = ({ member, face, off, range, cw, height, onSelect }) => {
       transition={
         wrapped
           ? {
-            x: { duration: 0 },
-            scale: { duration: 0 },
-            rotate: { duration: 0 },
-            filter: { duration: 0 },
-            opacity: { duration: 0.7, delay: 0.2 },
-          }
+              x: { duration: 0 },
+              scale: { duration: 0 },
+              rotate: { duration: 0 },
+              filter: { duration: 0 },
+              opacity: { duration: 0.7, delay: 0.2 },
+            }
           : {
-            default: { type: "spring", stiffness: 110, damping: 20, mass: 0.9 },
-            filter: { duration: 0.6 },
-            opacity: { duration: 0.6 },
-          }
+              default: {
+                type: "spring",
+                stiffness: 110,
+                damping: 20,
+                mass: 0.9,
+              },
+              filter: { duration: 0.6 },
+              opacity: { duration: 0.6 },
+            }
       }
       style={{
         position: "absolute",
@@ -231,30 +295,36 @@ const Slide = ({ member, face, off, range, cw, height, onSelect }) => {
         transformOrigin: "50% 0%",
         zIndex: 10 - abs,
         pointerEvents: visible ? "auto" : "none",
+        willChange: "transform, opacity, filter",
       }}
     >
-      <Lanyard
-        frontImage={face.front}
-        backImage={face.back}
-        strapImage={face.strap}
-        imageFit="cover"
-        cardColor="#f4f4f2"
-        orientation="portrait"
-        finish="glossy"
-        cornerRadius={0.3}
-        size={0.6}
-        anchor="center"
-        strapLength={0.45}
-        strapColor="#111111"
-        strapWidth={0.65}
-        metal="silver"
-        gravity={1}
-        damping={0.5}
-        elasticity={0.5}
-        breeze={!visible ? 0 : off === 0 ? 0.5 : 0.3}
-        interactive={off === 0}
-        intro
-      />
+      {live && face && (
+        <Lanyard
+          frontImage={face.front}
+          backImage={face.back}
+          strapImage={face.strap}
+          imageFit="cover"
+          cardColor="#f4f4f2"
+          orientation="portrait"
+          finish="glossy"
+          cornerRadius={0.3}
+          size={0.6}
+          anchor="center"
+          strapLength={0.45}
+          strapColor="#111111"
+          strapWidth={0.65}
+          metal="silver"
+          gravity={1}
+          damping={0.5}
+          elasticity={0.5}
+          breeze={!visible ? 0 : off === 0 ? 0.5 : 0.3}
+          interactive={off === 0}
+          intro
+          pixelRatio={off === 0 ? 2 : 1.5}
+          fps={off === 0 ? 60 : 30}
+          onReady={handleReady}
+        />
+      )}
       {off !== 0 && visible && (
         <button
           type="button"
@@ -265,7 +335,7 @@ const Slide = ({ member, face, off, range, cw, height, onSelect }) => {
       )}
     </motion.div>
   );
-};
+});
 
 const NavButton = ({ dir, onClick }) => (
   <button
@@ -284,15 +354,18 @@ const NavButton = ({ dir, onClick }) => (
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
-      className={`transition-transform duration-300 ${dir === "prev" ? "rotate-180 group-hover:-translate-x-0.5" : "group-hover:translate-x-0.5"
-        }`}
+      className={`transition-transform duration-300 ${
+        dir === "prev"
+          ? "rotate-180 group-hover:-translate-x-0.5"
+          : "group-hover:translate-x-0.5"
+      }`}
     >
       <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   </button>
 );
 
-const Carousel = ({ members, faces, reduced }) => {
+const Carousel = ({ members, reduced }) => {
   const N = members.length;
   const stageRef = useRef(null);
   const inView = useInView(stageRef, { amount: 0.3 });
@@ -303,6 +376,14 @@ const Carousel = ({ members, faces, reduced }) => {
   const [hover, setHover] = useState(false);
   const [holding, setHolding] = useState(false);
   const [manualPause, setManualPause] = useState(false);
+
+  // loading waves: the widest offset from the centre that is allowed to build a Lanyard yet
+  const [wave, setWave] = useState(0);
+  const [ready, setReady] = useState({});
+  const onReady = useCallback(
+    (id) => setReady((r) => (r[id] ? r : { ...r, [id]: true })),
+    [],
+  );
 
   useEffect(() => {
     const el = stageRef.current;
@@ -330,8 +411,36 @@ const Carousel = ({ members, faces, reduced }) => {
   const cw = mobile ? clamp(w * 0.52, 150, 260) : clamp(w / 4.3, 190, 320);
   const height = Math.round(cw * 2.2);
   const half = Math.floor(N / 2);
+  const mod = useCallback((i) => ((i % N) + N) % N, [N]);
 
-  const ready = members.every((m) => faces[m.id]);
+  // faces are painted nearest-first: centre, then right, left, and one step beyond what is visible
+  const order = useMemo(() => {
+    const out = [];
+    for (let d = 0; d <= Math.min(range + 1, half); d++) {
+      out.push(mod(active + d));
+      if (d) out.push(mod(active - d));
+    }
+    return [...new Set(out)];
+  }, [active, range, half, mod]);
+  const faces = useCardFaces(members, order, seen);
+
+  // next wave starts shortly after the current one has drawn its first frame
+  useEffect(() => {
+    const target = Math.min(range, half);
+    if (!seen || wave >= target) return undefined;
+    const ids = [];
+    for (let off = -wave; off <= wave; off++)
+      ids.push(members[mod(active + off)].id);
+    const settled = ids.every((id) => ready[id]);
+    const t = setTimeout(
+      () => setWave((s) => Math.min(target, s + 1)),
+      settled ? WAVE_GAP_MS : WAVE_TIMEOUT_MS,
+    );
+    return () => clearTimeout(t);
+  }, [seen, wave, range, half, active, ready, members, mod]);
+
+  const maxOff = Math.min(wave, range);
+
   const playing = !reduced && !manualPause && N > 1;
   const paused = hover || holding || !inView;
 
@@ -355,7 +464,8 @@ const Carousel = ({ members, faces, reduced }) => {
         className="relative w-full select-none overflow-hidden outline-none"
         style={{
           height,
-          WebkitMaskImage: "linear-gradient(to bottom, transparent 0, #000 14%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent 0, #000 14%)",
           maskImage: "linear-gradient(to bottom, transparent 0, #000 14%)",
         }}
       >
@@ -374,19 +484,23 @@ const Carousel = ({ members, faces, reduced }) => {
         />
 
         {seen &&
-          ready &&
-          members.map((m, i) => (
-            <Slide
-              key={m.id}
-              member={m}
-              face={faces[m.id]}
-              off={((i - active + N + half) % N) - half}
-              range={range}
-              cw={cw}
-              height={height}
-              onSelect={go}
-            />
-          ))}
+          members.map((m, i) => {
+            const off = ((i - active + N + half) % N) - half;
+            return (
+              <Slide
+                key={m.id}
+                member={m}
+                face={faces[m.id]}
+                off={off}
+                range={range}
+                mount={Math.abs(off) <= maxOff}
+                cw={cw}
+                height={height}
+                onSelect={go}
+                onReady={onReady}
+              />
+            );
+          })}
       </div>
 
       <p className="sr-only" aria-live="polite">
@@ -405,8 +519,9 @@ const Carousel = ({ members, faces, reduced }) => {
                 onClick={() => setActive(i)}
                 aria-label={`Show ${m.name}, ${i + 1} of ${N}`}
                 aria-current={i === active}
-                className={`relative h-2.5 overflow-hidden rounded-full bg-white/15 outline-none transition-[width,background-color] duration-500 focus-visible:ring-2 focus-visible:ring-emerald-400 ${i === active ? "w-12" : "w-2.5 hover:bg-white/30"
-                  }`}
+                className={`relative h-2.5 overflow-hidden rounded-full bg-white/15 outline-none transition-[width,background-color] duration-500 focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+                  i === active ? "w-12" : "w-2.5 hover:bg-white/30"
+                }`}
               >
                 {i === active && (
                   <span
@@ -415,9 +530,9 @@ const Carousel = ({ members, faces, reduced }) => {
                     style={
                       playing
                         ? {
-                          animation: `team-progress ${STEP_MS}ms linear forwards`,
-                          animationPlayState: paused ? "paused" : "running",
-                        }
+                            animation: `team-progress ${STEP_MS}ms linear forwards`,
+                            animationPlayState: paused ? "paused" : "running",
+                          }
                         : undefined
                     }
                     onAnimationEnd={() => go(1)}
@@ -437,8 +552,18 @@ const Carousel = ({ members, faces, reduced }) => {
               aria-label={manualPause ? "Resume autoplay" : "Pause autoplay"}
               className="grid h-9 w-9 place-items-center rounded-full text-gray-400 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-emerald-400"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                {manualPause ? <path d="M7 4l13 8-13 8z" /> : <path d="M6 4h4v16H6zM14 4h4v16h-4z" />}
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden
+              >
+                {manualPause ? (
+                  <path d="M7 4l13 8-13 8z" />
+                ) : (
+                  <path d="M6 4h4v16H6zM14 4h4v16h-4z" />
+                )}
               </svg>
             </button>
           )}
@@ -450,21 +575,27 @@ const Carousel = ({ members, faces, reduced }) => {
 
 /* --------------------------------
    Team section
+
+   Background effects are kept off the main thread / paint path:
+   - the cursor glow is a fixed-size gradient that is MOVED with a transform (the old version
+     re-painted a full-section background on every mouse move, right on top of the WebGL cards),
+   - the two blobs are radial gradients (no 160px blur filters) animated with transform + opacity,
+   - the marquee is a CSS animation,
+   and all of them stop while the section is off-screen.
 --------------------------------- */
+
+const BLOB_A =
+  "radial-gradient(circle closest-side, rgba(5,150,105,0.73) 0%, rgba(5,150,105,0.5) 40%, rgba(5,150,105,0.15) 70%, rgba(5,150,105,0) 100%)";
+const BLOB_B =
+  "radial-gradient(circle closest-side, rgba(5,150,105,0.63) 0%, rgba(5,150,105,0.42) 40%, rgba(5,150,105,0.12) 70%, rgba(5,150,105,0) 100%)";
 
 const Team = () => {
   const sectionRef = useRef(null);
   const reduced = useReducedMotion();
-  const [faces, setFaces] = useState({});
 
-  // paint the card faces once (photo + name + role) for the lanyards
-  useEffect(() => {
-    let dead = false;
-    buildCardFaces(teamMembers).then((f) => !dead && setFaces(f));
-    return () => {
-      dead = true;
-    };
-  }, []);
+  // true while any part of the section is on screen
+  const sectionInView = useInView(sectionRef, { amount: 0 });
+  const animate = sectionInView && !reduced;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -481,20 +612,14 @@ const Team = () => {
   const ghostX = useTransform(
     progress,
     [0, 1],
-    reduced ? ["0%", "0%"] : ["12%", "-12%"]
+    reduced ? ["0%", "0%"] : ["12%", "-12%"],
   );
 
-  // Section cursor glow
-  const px = useMotionValue(-600);
-  const py = useMotionValue(-600);
-
-  const cursorGlow = useMotionTemplate`
-    radial-gradient(
-      520px circle at ${px}px ${py}px,
-      rgba(0, 153, 102, 0.12),
-      transparent 65%
-    )
-  `;
+  // Section cursor glow (moved with a transform, never repainted)
+  const px = useMotionValue(-1200);
+  const py = useMotionValue(-1200);
+  const glowX = useTransform(px, (v) => v - 520);
+  const glowY = useTransform(py, (v) => v - 520);
 
   const handleMove = (e) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -504,8 +629,8 @@ const Team = () => {
   };
 
   const handleLeave = () => {
-    px.set(-600);
-    py.set(-600);
+    px.set(-1200);
+    py.set(-1200);
   };
 
   return (
@@ -516,6 +641,8 @@ const Team = () => {
       onMouseLeave={handleLeave}
       className="main-container relative overflow-hidden bg-black px-4 py-20 md:py-28"
     >
+      <style>{`@keyframes team-marquee-x{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}`}</style>
+
       {/* Background layers */}
       <div
         aria-hidden
@@ -523,42 +650,69 @@ const Team = () => {
       />
 
       <motion.div
-        className="pointer-events-none absolute inset-0"
-        style={{ background: cursorGlow }}
+        aria-hidden
+        className="pointer-events-none absolute left-0 top-0"
+        style={{
+          x: glowX,
+          y: glowY,
+          width: 1040,
+          height: 1040,
+          background:
+            "radial-gradient(circle closest-side, rgba(0,153,102,0.12), transparent 65%)",
+          willChange: "transform",
+        }}
       />
 
       <motion.div
         aria-hidden
-        animate={{
-          scale: [1, 1.15, 1],
-          opacity: [0.2, 0.35, 0.2],
+        animate={
+          animate
+            ? { scale: [1, 1.15, 1], opacity: [0.2, 0.35, 0.2] }
+            : { scale: 1, opacity: 0.2 }
+        }
+        transition={
+          animate
+            ? { duration: 8, repeat: Infinity, ease: "easeInOut" }
+            : { duration: 0 }
+        }
+        className="pointer-events-none absolute rounded-full"
+        style={{
+          left: -350,
+          top: -350,
+          width: 900,
+          height: 900,
+          background: BLOB_A,
+          willChange: "transform, opacity",
         }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="pointer-events-none absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-emerald-600 blur-[160px]"
       />
 
       <motion.div
         aria-hidden
-        animate={{
-          scale: [1.1, 1, 1.1],
-          opacity: [0.12, 0.25, 0.12],
+        animate={
+          animate
+            ? { scale: [1.1, 1, 1.1], opacity: [0.12, 0.25, 0.12] }
+            : { scale: 1.1, opacity: 0.12 }
+        }
+        transition={
+          animate
+            ? { duration: 10, repeat: Infinity, ease: "easeInOut" }
+            : { duration: 0 }
+        }
+        className="pointer-events-none absolute rounded-full"
+        style={{
+          right: -360,
+          bottom: -408,
+          width: 880,
+          height: 880,
+          background: BLOB_B,
+          willChange: "transform, opacity",
         }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="pointer-events-none absolute -bottom-52 -right-40 h-[480px] w-[480px] rounded-full bg-emerald-600 blur-[170px]"
       />
 
       {/* Background TEAM text */}
       <motion.div
         aria-hidden
-        style={{ x: ghostX }}
+        style={{ x: ghostX, willChange: "transform" }}
         className="team-ghost pointer-events-none absolute left-0 top-[42%] -translate-y-1/2 whitespace-nowrap text-[26vw] font-bold leading-none tracking-tighter"
       >
         TEAM
@@ -592,7 +746,6 @@ const Team = () => {
             }}
             className="block h-px bg-[#048a47]"
           />
-
           Our team
         </motion.div>
 
@@ -611,13 +764,13 @@ const Team = () => {
             }}
             className="text-[15px] leading-relaxed text-gray-300 md:w-[30%]"
           >
-            A team of designers and developers who care about every
-            pixel, and every millisecond.
+            A team of designers and developers who care about every pixel, and
+            every millisecond.
           </motion.p>
         </div>
 
         {/* Lanyard carousel */}
-        <Carousel members={teamMembers} faces={faces} reduced={reduced} />
+        <Carousel members={teamMembers} reduced={reduced} />
 
         {/* Marquee */}
         <motion.div
@@ -630,14 +783,15 @@ const Team = () => {
           }}
           className="team-marquee mt-24 overflow-hidden border-y border-white/10 py-5"
         >
-          <motion.div
-            animate={reduced ? undefined : { x: ["0%", "-50%"] }}
-            transition={{
-              duration: 28,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+          <div
             className="flex w-max"
+            style={{
+              animation: reduced
+                ? "none"
+                : "team-marquee-x 28s linear infinite",
+              animationPlayState: animate ? "running" : "paused",
+              willChange: "transform",
+            }}
           >
             {[0, 1].map((dup) => (
               <div
@@ -656,7 +810,7 @@ const Team = () => {
                 ))}
               </div>
             ))}
-          </motion.div>
+          </div>
         </motion.div>
 
         {/* CTA */}

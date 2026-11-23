@@ -1,7 +1,13 @@
 /* Paints the ID-card faces and the strap tile for <Lanyard /> at runtime,
    so each team member only needs a photo + a few text fields in Team.jsx.
-   Everything returns data-URLs, which Lanyard accepts as frontImage /
-   backImage / strapImage.
+
+   Performance notes
+   - Faces are built ON DEMAND, one member at a time (buildCardFace), through a serial queue that
+     yields to the browser between steps, so nothing blocks the main thread for long.
+   - Results are cached per member.
+   - Faces are encoded with canvas.toBlob (off the main thread) and handed to Lanyard as blob: URLs.
+   - The photo is cropped to the photo panel FIRST and only then turned grayscale, so the pixel loop
+     touches ~0.7M pixels instead of a full-resolution photo.
 
    Card canvas is 1024 x 1440 (the Lanyard portrait card is 1.6 x 2.25).
    The strap slot sits ~83px from the top, so the header row lives there. */
@@ -10,13 +16,13 @@ const W = 1024;
 const H = 1440;
 const FONT = '"Geist Variable", "Geist", ui-sans-serif, system-ui, sans-serif';
 const INK = "#0c1a14";
-const EMERALD = "#009966";
 
 const loadImg = (src) =>
   new Promise((resolve) => {
     if (!src) return resolve(null);
     const img = new Image();
     img.crossOrigin = "anonymous";
+    img.decoding = "async";
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
     img.src = src;
@@ -60,24 +66,21 @@ const drawMark = (g, cx, cy, r, color, lw) => {
   g.restore();
 };
 
-/* grayscale that works in every browser (ctx.filter is missing in Safari) */
-const toGray = (img) => {
-  const c = makeCanvas(img.naturalWidth || img.width, img.naturalHeight || img.height);
-  const g = c.getContext("2d");
-  g.drawImage(img, 0, 0);
-  const d = g.getImageData(0, 0, c.width, c.height);
-  for (let i = 0; i < d.data.length; i += 4) {
-    let v = 0.299 * d.data[i] + 0.587 * d.data[i + 1] + 0.114 * d.data[i + 2];
+/* grayscale in place (works in every browser; ctx.filter is missing in Safari) */
+const grayInPlace = (g, w, h) => {
+  const d = g.getImageData(0, 0, w, h);
+  const px = d.data;
+  for (let i = 0; i < px.length; i += 4) {
+    let v = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
     v = Math.min(255, Math.max(0, (v - 128) * 1.08 + 128));
-    d.data[i] = d.data[i + 1] = d.data[i + 2] = v;
+    px[i] = px[i + 1] = px[i + 2] = v;
   }
   g.putImageData(d, 0, 0);
-  return c;
 };
 
 const drawCover = (g, src, x, y, w, h, alignY = 0.3) => {
-  const sw = src.width;
-  const sh = src.height;
+  const sw = src.naturalWidth || src.width;
+  const sh = src.naturalHeight || src.height;
   const s = Math.max(w / sw, h / sh);
   const dw = sw * s;
   const dh = sh * s;
@@ -138,7 +141,13 @@ const paintFront = (m, photo) => {
   g.closePath();
   g.fill();
   if (photo) {
-    drawCover(g, toGray(photo), px, py, pw, ph, 0.25);
+    // crop to the panel first, then gray only those pixels
+    const panel = makeCanvas(pw, ph);
+    const pg = panel.getContext("2d");
+    pg.imageSmoothingQuality = "high";
+    drawCover(pg, photo, 0, 0, pw, ph, 0.25);
+    grayInPlace(pg, pw, ph);
+    g.drawImage(panel, px, py);
   } else {
     g.fillStyle = "#b9bfbc";
     g.font = `700 320px ${FONT}`;
@@ -163,7 +172,7 @@ const paintFront = (m, photo) => {
   fitText(g, m.title, W - 230, 46, 500);
   g.fillText(m.title, 132, 1215);
 
-  return c.toDataURL("image/jpeg", 0.92);
+  return c;
 };
 
 const paintBack = (m) => {
@@ -191,12 +200,12 @@ const paintBack = (m) => {
   g.font = `500 36px ${FONT}`;
   g.fillText(m.email || `@${m.handle}`, W / 2, H * 0.74 + 66);
 
-  return c.toDataURL("image/jpeg", 0.92);
+  return c;
 };
 
 /* One tile, repeated along the strap. Lanyard rotates the image 90° when it
    wraps it onto the strap, so the mark is pre-rotated to end up upright. */
-export const buildStrap = () => {
+const buildStrapCanvas = () => {
   const c = makeCanvas(576, 192);
   const g = c.getContext("2d");
   g.fillStyle = "#101312";
@@ -209,29 +218,93 @@ export const buildStrap = () => {
   g.rotate(-Math.PI / 2);
   drawMark(g, 0, 0, 34, "rgba(255,255,255,0.92)", 4);
   g.restore();
-  return c.toDataURL("image/png");
+  return c;
 };
 
-const ensureFonts = async () => {
-  try {
-    await Promise.all([
-      document.fonts.load(`700 80px ${FONT}`),
-      document.fonts.load(`500 40px ${FONT}`),
-    ]);
-  } catch {
-    /* falls back to the system font */
+export const buildStrap = () => buildStrapCanvas().toDataURL("image/png");
+
+/* ---------- scheduling ---------- */
+
+// canvas -> blob: URL, encoded off the main thread (falls back to a data URL)
+const toUrl = (canvas, type, quality) =>
+  new Promise((resolve) => {
+    if (!canvas.toBlob) return resolve(canvas.toDataURL(type, quality));
+    canvas.toBlob(
+      (blob) => resolve(blob ? URL.createObjectURL(blob) : canvas.toDataURL(type, quality)),
+      type,
+      quality
+    );
+  });
+
+// give the browser a turn between heavy steps
+const nextSlot = () =>
+  new Promise((resolve) => {
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      window.requestIdleCallback(() => resolve(), { timeout: 300 });
+    } else {
+      setTimeout(resolve, 16);
+    }
+  });
+
+// one build at a time, in the order requested
+let queue = Promise.resolve();
+const enqueue = (job) => {
+  const run = queue.then(job);
+  queue = run.catch(() => {});
+  return run;
+};
+
+let fontsPromise;
+const ensureFonts = () => {
+  if (!fontsPromise) {
+    fontsPromise = (async () => {
+      try {
+        await Promise.all([
+          document.fonts.load(`700 80px ${FONT}`),
+          document.fonts.load(`500 40px ${FONT}`),
+        ]);
+      } catch {
+        /* falls back to the system font */
+      }
+    })();
   }
+  return fontsPromise;
 };
 
-/* members: [{ id, name, title, handle, statusColor, avatarUrl, email }] */
+let strapPromise;
+const getStrap = () => {
+  if (!strapPromise) strapPromise = toUrl(buildStrapCanvas(), "image/png");
+  return strapPromise;
+};
+
+const faceCache = new Map();
+const keyOf = (m) => [m.id, m.name, m.title, m.handle, m.statusColor, m.avatarUrl, m.email].join("|");
+
+/* member: { id, name, title, handle, statusColor, avatarUrl, email }
+   -> Promise<{ front, back, strap }>  (cached; safe to call repeatedly) */
+export const buildCardFace = (member) => {
+  const key = keyOf(member);
+  const cached = faceCache.get(key);
+  if (cached) return cached;
+
+  const promise = enqueue(async () => {
+    await ensureFonts();
+    const [photo, strap] = await Promise.all([loadImg(member.avatarUrl), getStrap()]);
+    await nextSlot();
+    const front = await toUrl(paintFront(member, photo), "image/jpeg", 0.92);
+    await nextSlot();
+    const back = await toUrl(paintBack(member), "image/jpeg", 0.92);
+    return { front, back, strap };
+  });
+
+  promise.catch(() => faceCache.delete(key)); // let a failed build be retried
+  faceCache.set(key, promise);
+  return promise;
+};
+
+/* kept for compatibility: builds everything (still one at a time) */
 export const buildCardFaces = async (members) => {
-  await ensureFonts();
-  const strap = buildStrap();
-  const entries = await Promise.all(
-    members.map(async (m) => {
-      const photo = await loadImg(m.avatarUrl);
-      return [m.id, { front: paintFront(m, photo), back: paintBack(m), strap }];
-    }),
-  );
+  const entries = [];
+  for (const m of members) entries.push([m.id, await buildCardFace(m)]);
   return Object.fromEntries(entries);
 };

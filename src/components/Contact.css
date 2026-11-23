@@ -16,3 +16,26 @@
 #contact ::selection {
   background: rgba(0, 153, 102, 0.45);
 }
+
+/* one-time "these are clickable" ripple across the chips (delay is set per chip in the component) */
+@keyframes chip-nudge {
+  0%,
+  100% {
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #9ca3af;
+  }
+  35% {
+    border-color: rgba(5, 150, 105, 0.9);
+    color: #fff;
+  }
+}
+
+.chip-nudge {
+  animation: chip-nudge 900ms ease-in-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip-nudge {
+    animation: none;
+  }
+}

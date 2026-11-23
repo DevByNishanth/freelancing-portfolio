@@ -49,7 +49,7 @@ const projects = [
     tone: "light",
     scrim: "rgba(120, 40, 0, 0.42)",
     glow: "#f4813b",
-    href: "#",
+    href: "https://arunacaterer.com",
   },
   {
     id: "avarat",
@@ -65,7 +65,8 @@ const projects = [
   {
     id: "explore-munnar",
     brand: "Explore Munnar",
-    title: "A centralized dashboard to manage stays, activities and travel operations.",
+    title:
+      "A centralized dashboard to manage stays, activities and travel operations.",
     tags: ["Admin Dashboard", "Management"],
     img: exploreMunnarImg,
     alt: "Explore Munnar admin dashboard displayed on a tablet",
@@ -100,7 +101,8 @@ const projects = [
   {
     id: "explore-munnar",
     brand: "Explore Munnar",
-    title: "A centralized dashboard to manage stays, activities and travel operations.",
+    title:
+      "A centralized dashboard to manage stays, activities and travel operations.",
     tags: ["Admin Dashboard", "Management"],
     img: exploreMunnarDashboardImg,
     alt: "Explore Munnar admin dashboard displayed on a tablet",
@@ -247,11 +249,13 @@ const ProjectCard = ({ project, index, reduced }) => {
       >
         <motion.a
           href={project.href}
-          aria-label={`View project: ${project.brand}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`View project: ${project.brand} (opens in a new tab)`}
           onMouseMove={onMove}
           onMouseLeave={onLeave}
           style={{ rotateX: rx, rotateY: ry, transformPerspective: 1100 }}
-          className="group relative block rounded-3xl outline-none focus-visible:ring-2 focus-visible:ring-[#007a55] focus-visible:ring-offset-4 focus-visible:ring-offset-[#e6ede8]"
+          className="group relative block rounded-3xl ..."
         >
           {/* light cast under the card */}
           <span
@@ -323,8 +327,9 @@ const ProjectCard = ({ project, index, reduced }) => {
 
           {/* text layer */}
           <div
-            className={`pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-5 sm:p-6 lg:p-8 ${light ? "text-white" : "text-[#1c1402]"
-              }`}
+            className={`pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-5 sm:p-6 lg:p-8 ${
+              light ? "text-white" : "text-[#1c1402]"
+            }`}
           >
             <div className="max-w-[62%]">
               <MaskLine delay={0.55 + stagger}>
@@ -554,8 +559,9 @@ const Project = () => {
 
         {/* view all */}
         <div
-          className={`flex items-center gap-6 ${even ? "mt-16 md:mt-44 lg:mt-52" : "mt-16 md:mt-28"
-            }`}
+          className={`flex items-center gap-6 ${
+            even ? "mt-16 md:mt-44 lg:mt-52" : "mt-16 md:mt-28"
+          }`}
         >
           <motion.span
             aria-hidden

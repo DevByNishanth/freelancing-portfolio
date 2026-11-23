@@ -45,7 +45,7 @@ function App() {
             <>
               {/* hero section  */}
 
-              {/* <div className="h-screen relative bg-black ">
+              <div className="h-screen relative bg-black ">
                 <MagicRings
                   color="#009966"
                   colorTwo="#009966 "
@@ -219,29 +219,29 @@ function App() {
                     innovation.
                   </p>
                 </motion.div>
-              </div> */}
+              </div>
 
               {/* services    */}
-              {/* <Services /> */}
+              <Services />
 
               {/* why choose us  */}
-              {/* <WhyChooseUs /> */}
+              <WhyChooseUs />
 
               {/* Team  */}
-              {/* <Team /> */}
+              <Team />
 
               {/* technologies  */}
-              {/* <SolarSystem
+              <SolarSystem
                 title="Technologies We Work With"
                 description="From frontend to backend, we use modern technologies to deliver scalable and reliable digital solutions."
-              /> */}
+              />
 
               {/* Projects */}
               <Project />
               {/* Contact  */}
-              {/* <Contact /> */}
+              <Contact />
 
-              {/* <Footer /> */}
+              <Footer />
             </>
           }
         />

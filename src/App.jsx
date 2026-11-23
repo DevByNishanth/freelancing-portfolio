@@ -13,6 +13,7 @@ import Project from "./components/Project";
 import { Route, Routes } from "react-router-dom";
 import { ProjectListing } from "./pages/ProjectListing";
 import Footer from "./components/Footer";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
 function App() {
   function Counter({ value, suffix, delay }) {
     const count = useMotionValue(0);
@@ -247,7 +248,7 @@ function App() {
         />
 
         <Route path="/projects" element={<ProjectListing />} />
-        <Route path="/projects/:id" element={<></>} />
+        <Route path="/projects/:id" element={<ProjectDetailPage />} />
       </Routes>
     </>
   );

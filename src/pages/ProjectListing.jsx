@@ -6,6 +6,8 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
+import { Link } from "react-router-dom";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import arunaImg from "../assets/projects/arunaCanvas.png";
 import avaratImg from "../assets/projects/avaratSchoolCanvas.png";
@@ -227,50 +229,31 @@ const ProjectCard = ({ project, index }) => {
       initial={
         reducedMotion
           ? false
-          : {
-            opacity: 0,
-            y: 80,
-            scale: 0.94,
-            filter: "blur(10px)",
-          }
+          : { opacity: 0, y: 80, scale: 0.94, filter: "blur(10px)" }
       }
-      whileInView={{
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        filter: "blur(0px)",
-      }}
-      viewport={{
-        once: true,
-        amount: 0.15,
-      }}
+      whileInView={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+      viewport={{ once: true, amount: 0.15 }}
       transition={{
         duration: 1,
         delay: reducedMotion ? 0 : (index % 2) * 0.14,
         ease: EASE,
-        layout: {
-          duration: 0.5,
-          ease: EASE,
-        },
+        layout: { duration: 0.5, ease: EASE },
       }}
       whileHover={
         reducedMotion
           ? undefined
-          : {
-            y: -8,
-            transition: { duration: 0.4, ease: EASE },
-          }
+          : { y: -8, transition: { duration: 0.4, ease: EASE } }
       }
       className="project-card group relative cursor-pointer"
     >
       {/* Image glow */}
       <div
-        className="pointer-events-none absolute -bottom-5 left-[10%] h-16 w-[80%]  opacity-0 blur-3xl transition-opacity duration-700 group-hover:opacity-40"
+        className="pointer-events-none absolute -bottom-5 left-[10%] h-16 w-[80%] opacity-0 blur-3xl transition-opacity duration-700 group-hover:opacity-40"
         style={{ backgroundColor: project.glow }}
       />
 
       {/* Image frame */}
-      <div className="relative aspect-[1376/768] overflow-hidden rounded  bg-white/5">
+      <div className="relative aspect-[1376/768] overflow-hidden rounded bg-white/5">
         {/* Parallax image */}
         <motion.img
           src={project.img}
@@ -284,6 +267,9 @@ const ProjectCard = ({ project, index }) => {
         {/* Gradient overlay */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 opacity-60 transition-opacity duration-700 group-hover:opacity-90" />
 
+        {/* Bottom scrim — fades in on hover so the actions stay legible */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100" />
+
         {/* Border */}
         <div className="pointer-events-none absolute rounded inset-0 ring-1 ring-inset ring-white/15 transition-all duration-500 group-hover:ring-white/40" />
 
@@ -295,7 +281,6 @@ const ProjectCard = ({ project, index }) => {
               <p className="text-sm font-semibold tracking-wide text-white drop-shadow-md">
                 {project.brand}
               </p>
-
               <h3 className="mt-1 max-w-[350px] text-lg font-medium leading-snug text-white drop-shadow-md sm:text-2xl">
                 {project.title}
               </h3>
@@ -311,15 +296,63 @@ const ProjectCard = ({ project, index }) => {
           </div>
 
           {/* Bottom content */}
-          <div className="flex flex-wrap gap-2">
-            {project.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-white/20 bg-black/50 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md"
-              >
-                {tag}
-              </span>
-            ))}
+          <div className="flex flex-col">
+            {/* Tags (hidden on touch devices where the actions are always shown) */}
+            <div className="flex flex-wrap gap-2 [@media(hover:none)]:hidden">
+              {project.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-white/20 bg-black/50 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* Hover actions: height expands so the tags glide upward */}
+            <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:grid-rows-[1fr] group-focus-within:grid-rows-[1fr] [@media(hover:none)]:grid-rows-[1fr]">
+              <div className="min-h-0 overflow-hidden">
+                <div className="flex flex-wrap items-center gap-2.5 px-0.5 pb-0.5 pt-3.5">
+                  {/* View project */}
+                  <a
+                    href={project.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!project.href || project.href === "#") e.preventDefault();
+                    }}
+                    aria-label={`View live project: ${project.brand}`}
+                    className="group/btn relative inline-flex translate-y-4 items-center gap-2 overflow-hidden rounded-full bg-white px-4 py-2 text-xs font-semibold text-black opacity-0 shadow-lg shadow-black/30 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-black hover:text-white focus-visible:translate-y-0 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 active:scale-95 sm:text-sm [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100"
+                  >
+                    {/* shine sweep */}
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-y-0 -left-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 ease-out group-hover/btn:translate-x-[400%]"
+                    />
+                    <span className="relative">View project</span>
+                    <ArrowUpRight
+                      aria-hidden
+                      className="relative h-4 w-4 transition-transform duration-300 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5"
+                    />
+                  </a>
+
+                  {/* Case study */}
+                  <Link
+                    to={`/projects/${project.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={`Read case study: ${project.brand}`}
+                    className="group/btn relative inline-flex translate-y-4 items-center gap-2 overflow-hidden rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-semibold text-white opacity-0 shadow-lg shadow-black/30 backdrop-blur-md transition-all delay-75 duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]  hover:bg-black hover:text-white focus-visible:translate-y-0 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2  group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 active:scale-95 sm:text-sm [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100"
+                  >
+                    <span className="relative">Case study</span>
+                    <ArrowRight
+                      aria-hidden
+                      className="relative h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1"
+                    />
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

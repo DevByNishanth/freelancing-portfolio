@@ -111,7 +111,7 @@ export default function ChallengeSolution({ cs }) {
 
           <h2 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
             The Challenge &amp;{" "}
-            <span className="bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-700 to-emerald-900 bg-clip-text text-transparent">
               The Solution
             </span>
           </h2>

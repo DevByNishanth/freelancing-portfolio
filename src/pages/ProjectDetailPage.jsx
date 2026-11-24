@@ -17,6 +17,8 @@ import Footer from "@/components/Footer";
 import ProjectForm from "@/components/ProjectForm";
 import { projects } from "../data/Projects";
 import ChallengeSolution from "@/components/ChallengeSolution";
+import TechStack from "@/components/TechStack";
+import NextProject from "@/components/NextProject";
 
 // --------------------------------------------------
 // CONFIG
@@ -199,7 +201,7 @@ const ProjectDetailPage = () => {
   ];
 
   return (
-    <main className="relative min-h-screen overflow-x-clip bg-[#07100c] text-white">
+    <main className="relative min-h-screen overflow-x-clip bg-black text-white">
       {/* Reading progress */}
       <motion.div
         aria-hidden
@@ -401,12 +403,12 @@ const ProjectDetailPage = () => {
       </section> */}
 
 
-      <ChallengeSolution  cs={cs} />
+      <ChallengeSolution cs={cs} />
 
       {/* ------------------------------------------------ */}
       {/* KEY FEATURES */}
       {/* ------------------------------------------------ */}
-      <section className="relative z-10 mx-auto mt-28 w-[90%] max-w-6xl">
+      {/* <section className="relative z-10 mx-auto mt-28 w-[90%] max-w-6xl">
         <Reveal>
           <Eyebrow>What we built</Eyebrow>
           <h2 className="mt-4 max-w-2xl text-3xl font-bold uppercase leading-tight sm:text-4xl">
@@ -433,7 +435,7 @@ const ProjectDetailPage = () => {
             </Reveal>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* ------------------------------------------------ */}
       {/* GALLERY (optional) */}
@@ -462,7 +464,7 @@ const ProjectDetailPage = () => {
       {/* ------------------------------------------------ */}
       {/* RESULTS */}
       {/* ------------------------------------------------ */}
-      <section className="relative z-10 mx-auto mt-28 w-[90%] max-w-6xl overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-14 sm:px-12">
+      <section className="relative z-10 mx-auto mt-14 w-[90%] max-w-6xl overflow-hidden rounded-2xl  px-6 py-14 sm:px-12">
         <div
           aria-hidden
           className="pointer-events-none absolute -bottom-24 left-1/2 h-[180px] w-[320px] -translate-x-1/2 rounded-full bg-[#03fc5e] opacity-30 blur-[110px]"
@@ -475,7 +477,7 @@ const ProjectDetailPage = () => {
         <div className="relative mt-10 grid gap-8 sm:grid-cols-3">
           {cs.results.map((r, i) => (
             <Reveal key={r.label} delay={i * 0.12} y={30}>
-              <div className="border-t border-gray-700 pt-4">
+              <div className=" border-gray-700 pt-4">
                 <p className="text-5xl font-semibold tracking-tight text-white sm:text-6xl">
                   <CountUp value={r.value} suffix={r.suffix} prefix={r.prefix} />
                 </p>
@@ -489,7 +491,7 @@ const ProjectDetailPage = () => {
       {/* ------------------------------------------------ */}
       {/* TECH STACK */}
       {/* ------------------------------------------------ */}
-      <section className="relative z-10 mx-auto mt-24 grid w-[90%] max-w-6xl gap-8 md:grid-cols-[1fr_2fr] md:gap-16">
+      {/* <section className="relative z-10 mx-auto mt-24 grid w-[90%] max-w-6xl gap-8 md:grid-cols-[1fr_2fr] md:gap-16">
         <Reveal>
           <Eyebrow>Tech stack</Eyebrow>
         </Reveal>
@@ -504,7 +506,9 @@ const ProjectDetailPage = () => {
             </motion.span>
           ))}
         </Reveal>
-      </section>
+      </section> */}
+
+      <TechStack tech={cs.tech} />
 
       {/* ------------------------------------------------ */}
       {/* TESTIMONIAL (optional) */}
@@ -527,7 +531,7 @@ const ProjectDetailPage = () => {
       {/* ------------------------------------------------ */}
       {/* NEXT PROJECT */}
       {/* ------------------------------------------------ */}
-      {nextProject && nextProject.id !== project.id && (
+      {/* {nextProject && nextProject.id !== project.id && (
         <section className="relative z-10 mx-auto mt-32 w-[90%] max-w-6xl">
           <Reveal>
             <p className="mb-4 text-sm uppercase tracking-[0.22em] text-gray-500">
@@ -564,13 +568,16 @@ const ProjectDetailPage = () => {
             </Link>
           </Reveal>
         </section>
+      )} */}
+      {nextProject && nextProject.id !== project.id && (
+        <NextProject project={nextProject} />
       )}
 
       {/* ------------------------------------------------ */}
       {/* CTA BANNER */}
       {/* ------------------------------------------------ */}
-      <section className="relative z-10 mx-auto mt-24 mb-24 h-[260px] w-[90%] max-w-6xl overflow-hidden rounded-xl border border-white/10 bg-black/40 p-4 sm:w-[80%]">
-        <div className="absolute -bottom-45 left-1/2 h-[160px] w-[260px] -translate-x-1/2 rounded-full bg-[#03fc5e] blur-[110px]" />
+      <section className="relative z-10 mx-auto mt-8 mb-12  h-[260px] overflow-hidden   p-4 sm:w-[80%]">
+        <div className="absolute -bottom-45 left-1/2 h-[160px] w-[260px] -translate-x-1/2 rounded-full bg-[#03fc5e] blur-[210px]" />
 
         <div className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 px-4 text-center">
           <h2 className="text-3xl font-semibold uppercase text-white sm:text-4xl">

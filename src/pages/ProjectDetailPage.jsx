@@ -16,6 +16,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Quote } from "lucide-react";
 import Footer from "@/components/Footer";
 import ProjectForm from "@/components/ProjectForm";
 import { projects } from "@/data/projects";
+import ChallengeSolution from "@/components/ChallengeSolution";
 
 // --------------------------------------------------
 // CONFIG
@@ -226,7 +227,7 @@ const ProjectDetailPage = () => {
       {/* ------------------------------------------------ */}
       {/* HERO */}
       {/* ------------------------------------------------ */}
-      <header className="relative z-10 mx-auto w-[90%] max-w-6xl pt-10 sm:pt-14">
+      <header className="relative z-10 mx-auto w-[90%] pt-10 sm:pt-10">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -245,38 +246,47 @@ const ProjectDetailPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
-          className="mt-12 text-sm font-semibold tracking-wide text-emerald-400"
+          className="mt-8 text-sm font-semibold tracking-wide text-emerald-600"
         >
           Case study · {project.brand}
         </motion.p>
 
-        <motion.h1
-          variants={headingVariants}
-          initial="hidden"
-          animate="visible"
-          className="mt-4 flex max-w-4xl flex-wrap gap-x-3 text-3xl font-bold uppercase leading-[1.1] tracking-tight sm:gap-x-4 sm:text-5xl lg:text-[56px]"
-        >
-          {project.title.split(" ").map((word, i) => (
-            <motion.span key={i} variants={wordVariants} className="inline-block">
-              {word}
-            </motion.span>
-          ))}
-        </motion.h1>
+        <div className="flex items-start justify-between">
 
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.6, ease: EASE }}
-          className="mt-8 flex flex-wrap items-center gap-3"
-        >
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md"
+
+
+          <div>
+            <motion.h1
+              variants={headingVariants}
+              initial="hidden"
+              animate="visible"
+              className="flex max-w-4xl flex-wrap gap-x-3 text-3xl font-bold uppercase leading-[1.1] tracking-tight sm:gap-x-4 sm:text-5xl lg:text-[56px]"
             >
-              {tag}
-            </span>
-          ))}
+              {project.title.split(" ").map((word, i) => (
+                <motion.span key={i} variants={wordVariants} className="inline-block">
+                  {word}
+                </motion.span>
+              ))}
+            </motion.h1>
+
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.6, ease: EASE }}
+              className="mt-2 flex flex-wrap items-center gap-3"
+            >
+              {project.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full  bg-white/10 px-4 py-2 text-xs font-medium text-white backdrop-blur-md"
+                >
+                  {tag}
+                </span>
+              ))}
+
+
+            </motion.div>
+          </div>
 
           {hasLiveLink && (
             <a
@@ -293,14 +303,14 @@ const ProjectDetailPage = () => {
               <ArrowUpRight className="relative h-4 w-4 transition-transform duration-300 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" />
             </a>
           )}
-        </motion.div>
+        </div>
 
         {/* Meta */}
         <motion.dl
           variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.8 } } }}
           initial="hidden"
           animate="visible"
-          className="mt-12 grid grid-cols-2 gap-x-8 gap-y-6 md:grid-cols-4"
+          className="mt-4 grid grid-cols-2 gap-x-2 gap-y-6 md:grid-cols-4 "
         >
           {meta.map((item) => (
             <motion.div
@@ -309,7 +319,7 @@ const ProjectDetailPage = () => {
                 hidden: { opacity: 0, y: 25 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } },
               }}
-              className="border-t border-gray-700 pt-3"
+              className="pt-3"
             >
               <dt className="text-sm text-gray-500">{item.label}</dt>
               <dd className="mt-1 text-base font-medium text-white sm:text-lg">
@@ -323,7 +333,7 @@ const ProjectDetailPage = () => {
       {/* ------------------------------------------------ */}
       {/* HERO IMAGE */}
       {/* ------------------------------------------------ */}
-      <section className="relative z-10 mx-auto mt-14 w-[90%] max-w-6xl">
+      <section className="relative z-10 mx-auto mt-8 w-[90%] ">
         <Reveal y={60}>
           <div ref={heroRef} className="group relative">
             <div
@@ -331,7 +341,7 @@ const ProjectDetailPage = () => {
               className="pointer-events-none absolute -bottom-6 left-[10%] h-20 w-[80%] opacity-40 blur-3xl"
               style={{ backgroundColor: project.glow }}
             />
-            <div className="relative aspect-[1376/768] overflow-hidden rounded-xl bg-white/5">
+            <div className="relative aspect-[1376/768] overflow-hidden  bg-white/5">
               <motion.img
                 src={project.img}
                 alt={project.alt}
@@ -344,26 +354,34 @@ const ProjectDetailPage = () => {
             </div>
           </div>
         </Reveal>
+
+        <div className="tint bg-black/70 blur-[90px] absolute bottom-0 left-0 h-50 w-[100%] z-10"></div>
+
+        <section className="absolute bottom-10 z-40 w-[90%] left-10">
+          <Reveal delay={0.1}>
+            <p className="text-xl leading-relaxed font-semibold text-white sm:text-5xl">
+              {cs.client}
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <p className="text-xs mt-5 leading-relaxed text-white sm:text-xl">
+              {cs.overview}
+            </p>
+          </Reveal>
+        </section>
+
+
       </section>
 
       {/* ------------------------------------------------ */}
       {/* OVERVIEW */}
       {/* ------------------------------------------------ */}
-      <section className="relative z-10 mx-auto mt-24 grid w-[90%] max-w-6xl gap-8 md:grid-cols-[1fr_2fr] md:gap-16">
-        <Reveal>
-          <Eyebrow>Overview</Eyebrow>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <p className="text-xl leading-relaxed text-gray-200 sm:text-2xl">
-            {cs.overview}
-          </p>
-        </Reveal>
-      </section>
 
       {/* ------------------------------------------------ */}
       {/* CHALLENGE / SOLUTION */}
       {/* ------------------------------------------------ */}
-      <section className="relative z-10 mx-auto mt-20 grid w-[90%] max-w-6xl gap-5 md:grid-cols-2 md:gap-6">
+      {/* <section className="relative z-10 mx-auto mt-20 grid w-[90%] max-w-6xl gap-5 md:grid-cols-2 md:gap-6">
         {[
           { label: "The challenge", text: cs.challenge, n: "01" },
           { label: "The solution", text: cs.solution, n: "02" },
@@ -380,7 +398,10 @@ const ProjectDetailPage = () => {
             </div>
           </Reveal>
         ))}
-      </section>
+      </section> */}
+
+
+      <ChallengeSolution  cs={cs} />
 
       {/* ------------------------------------------------ */}
       {/* KEY FEATURES */}

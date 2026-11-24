@@ -15,7 +15,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Quote } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import ProjectForm from "@/components/ProjectForm";
-import { projects } from "@/data/projects";
+import { projects } from "../data/Projects";
 import ChallengeSolution from "@/components/ChallengeSolution";
 
 // --------------------------------------------------

@@ -49,7 +49,7 @@ const projects = [
     tone: "light",
     scrim: "rgba(120, 40, 0, 0.42)",
     glow: "#f4813b",
-    href: "https://arunacaterer.com",
+    href: "https://arunacaterer.com/",
   },
   {
     id: "avarat",
@@ -60,7 +60,7 @@ const projects = [
     alt: "Avarat Public School website shown on a tablet",
     tone: "dark",
     glow: "#e0961a",
-    href: "#",
+    href: "https://avatarpublicschool.com/",
   },
   {
     id: "explore-munnar",
@@ -73,7 +73,7 @@ const projects = [
     tone: "light",
     scrim: "rgba(0, 25, 10, 0.4)",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://www.exploringmunnar.com",
   },
   {
     id: "shadow-arrow",
@@ -85,7 +85,7 @@ const projects = [
     tone: "light",
     scrim: "rgba(0, 10, 50, 0.35)",
     glow: "#1d4ed8",
-    href: "#",
+    href: "https://shadowarrow.com/",
   },
   {
     id: "book-my-cabs",
@@ -96,10 +96,10 @@ const projects = [
     alt: "Book My Cabs taxi booking website shown on a tablet",
     tone: "dark",
     glow: "#f5c500",
-    href: "#",
+    href: "https://bookmycabs.in",
   },
   {
-    id: "explore-munnar",
+    id: "explore-munnar-dashboard",
     brand: "Explore Munnar",
     title:
       "A centralized dashboard to manage stays, activities and travel operations.",
@@ -109,7 +109,7 @@ const projects = [
     tone: "light",
     scrim: "rgba(0, 25, 10, 0.4)",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://exploremunnardashboard.netlify.app/explore",
   },
 ];
 
@@ -380,14 +380,10 @@ const ProjectCard = ({ project, index, reduced }) => {
                   transition: { duration: 0.8, ease: EASE, delay: 1 + stagger },
                 },
               }}
-              className="relative inline-flex h-11 w-fit items-center overflow-hidden rounded-full bg-white/90 pl-5 pr-14 text-sm font-medium text-[#0c1a14] backdrop-blur-sm transition-colors duration-500 group-hover:text-white group-focus-visible:text-white"
+              className="relative inline-flex h-11 w-fit items-center rounded-full border border-white/70 bg-white/95 pl-5 pr-14 text-sm font-medium text-[#0c1a14] shadow-sm backdrop-blur-sm transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-emerald-800/20 group-hover:bg-emerald-50 group-hover:text-emerald-950 group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-emerald-400"
             >
-              <span
-                aria-hidden
-                className="absolute right-1.5 top-1.5 h-8 w-8 rounded-full bg-[#0c1a14] transition-[transform,background-color] duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[14] group-hover:bg-[#000000] group-focus-visible:scale-[14] group-focus-visible:bg-[#007a55]"
-              />
               <span className="relative z-10">View project</span>
-              <Arrow className="absolute right-[14px] top-[14px] z-10 text-white transition-transform duration-500 group-hover:-rotate-45 group-focus-visible:-rotate-45" />
+              <Arrow className="absolute right-[14px] top-[14px] z-10 text-[#0c1a14] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-focus-visible:-translate-y-0.5 group-focus-visible:translate-x-0.5" />
             </motion.span>
           </div>
         </motion.a>

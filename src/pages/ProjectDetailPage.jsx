@@ -144,7 +144,7 @@ const NotFound = () => (
       </p>
       <Link
         to="/projects"
-        className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-emerald-300"
+        className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/70 bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md"
       >
         <ArrowLeft className="h-4 w-4" /> Back to projects
       </Link>
@@ -295,12 +295,8 @@ const ProjectDetailPage = () => {
               href={project.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group/btn relative ml-1 inline-flex items-center gap-2 overflow-hidden rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-lg shadow-black/30 transition hover:bg-emerald-300 active:scale-95"
+              className="group/btn relative ml-1 inline-flex items-center gap-2 rounded-full border border-white/70 bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md active:scale-95"
             >
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-y-0 -left-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 ease-out group-hover/btn:translate-x-[400%]"
-              />
               <span className="relative">Visit live site</span>
               <ArrowUpRight className="relative h-4 w-4 transition-transform duration-300 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" />
             </a>
@@ -343,7 +339,7 @@ const ProjectDetailPage = () => {
               className="pointer-events-none absolute -bottom-6 left-[10%] h-20 w-[80%] opacity-40 blur-3xl"
               style={{ backgroundColor: project.glow }}
             />
-            <div className="relative aspect-[1376/768] overflow-hidden  bg-white/5">
+            <div className="relative aspect-[1376/768] rounded overflow-hidden  bg-white/5">
               <motion.img
                 src={project.img}
                 alt={project.alt}
@@ -352,7 +348,7 @@ const ProjectDetailPage = () => {
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10" />
-              <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-white/15" />
+              <div className="pointer-events-none absolute inset-0 rounded ring-1 ring-inset ring-white/15" />
             </div>
           </div>
         </Reveal>
@@ -591,13 +587,13 @@ const ProjectDetailPage = () => {
             <button
               type="button"
               onClick={() => setIsProjectFormOpen(true)}
-              className="w-1/2 cursor-pointer rounded-md bg-black px-3 py-2 text-white transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+              className="w-1/2 cursor-pointer rounded-md bg-black px-3 py-2 text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-950 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
             >
               Start a project
             </button>
             <Link
               to="/projects"
-              className="w-1/2 rounded-md bg-white px-3 py-2 text-center text-black transition hover:bg-emerald-300"
+              className="w-1/2 rounded-md border border-white/70 bg-white px-3 py-2 text-center text-black transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md"
             >
               More work
             </Link>

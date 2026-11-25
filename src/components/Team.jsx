@@ -833,26 +833,9 @@ const Team = () => {
             initial="rest"
             whileHover="hover"
             whileTap={{ scale: 0.96 }}
-            className="relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-white px-8 py-4 font-medium text-black"
+            className="relative inline-flex items-center gap-3 rounded-full border border-white/70 bg-white px-8 py-4 font-medium text-black shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           >
             <motion.span
-              variants={{
-                rest: { y: "101%" },
-                hover: { y: 0 },
-              }}
-              transition={{
-                duration: 0.5,
-                ease: EASE,
-              }}
-              className="absolute inset-0 bg-emerald-600"
-            />
-
-            <motion.span
-              variants={{
-                rest: { color: "#000000" },
-                hover: { color: "#ffffff" },
-              }}
-              transition={{ duration: 0.3 }}
               className="relative"
             >
               Let's work together
@@ -861,7 +844,7 @@ const Team = () => {
             <motion.svg
               variants={{
                 rest: { x: 0, color: "#000000" },
-                hover: { x: 6, color: "#ffffff" },
+                hover: { x: 4, color: "#065f46" },
               }}
               transition={{
                 type: "spring",

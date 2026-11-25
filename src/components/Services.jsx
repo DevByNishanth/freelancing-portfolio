@@ -295,6 +295,7 @@ const Services = () => {
 
   return (
     <section
+      id="services"
       ref={sectionRef}
       className="main-container relative bg-[#000000] px-6 md:px-12 py-16 md:py-24 m-auto mt-10 overflow-hidden"
     >

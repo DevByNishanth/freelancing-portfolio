@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { useLenis } from "lenis/react";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -45,9 +46,30 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.8, delay, ease: EASE },
 });
 
-const Footer = () => {
+const Footer = ({ showNavigation = true }) => {
   const reducedMotion = useReducedMotion();
+  const lenis = useLenis();
   const reveal = (delay) => (reducedMotion ? {} : fadeUp(delay));
+
+  const scrollToSection = (event, href) => {
+    const target = document.querySelector(href);
+    if (!target) return;
+
+    event.preventDefault();
+    const targetPosition = target.getBoundingClientRect().top + window.scrollY;
+    if (lenis) {
+      lenis.scrollTo(targetPosition, {
+        duration: reducedMotion ? 0 : 1.2,
+        force: true,
+      });
+    } else {
+      target.scrollIntoView({
+        behavior: reducedMotion ? "instant" : "smooth",
+        block: "start",
+      });
+    }
+    window.history.replaceState(null, "", href);
+  };
 
   return (
     <footer className="relative isolate overflow-hidden bg-[#07100c] text-white">
@@ -185,22 +207,25 @@ const Footer = () => {
       {/* NAVIGATION + SIGN-OFF */}
       {/* ===================================== */}
       <div className="relative z-10 mx-auto flex w-[90%] max-w-7xl flex-col items-center gap-8 py-12 md:flex-row md:justify-between">
-        <motion.nav
-          {...reveal(0.1)}
-          aria-label="Footer"
-          className="flex flex-wrap items-center justify-center gap-2"
-        >
-          {footerLinks.map((link) => (
-            <motion.a
-              key={link.label}
-              href={link.href}
-              whileHover={reducedMotion ? {} : { y: -2 }}
-              className="rounded-full border border-white/[0.08] bg-white/[0.02] px-4 py-2 text-sm text-gray-400 transition-colors duration-300 hover:border-emerald-400/30 hover:bg-emerald-400/[0.06] hover:text-emerald-300"
-            >
-              {link.label}
-            </motion.a>
-          ))}
-        </motion.nav>
+        {showNavigation && (
+          <motion.nav
+            {...reveal(0.1)}
+            aria-label="Footer"
+            className="flex flex-wrap items-center justify-center gap-2"
+          >
+            {footerLinks.map((link) => (
+              <motion.a
+                key={link.label}
+                href={link.href}
+                onClick={(event) => scrollToSection(event, link.href)}
+                whileHover={reducedMotion ? {} : { y: -2 }}
+                className="rounded-full border border-white/[0.08] bg-white/[0.02] px-4 py-2 text-sm text-gray-400 transition-colors duration-300 hover:border-emerald-400/30 hover:bg-emerald-400/[0.06] hover:text-emerald-300"
+              >
+                {link.label}
+              </motion.a>
+            ))}
+          </motion.nav>
+        )}
 
         <motion.p
           {...reveal(0.25)}

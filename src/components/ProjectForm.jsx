@@ -99,10 +99,10 @@ function Stepper({ current }) {
             >
               <span
                 className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-all duration-300 ${isActive
-                    ? "bg-white text-[#0a1510] ring-4 ring-white/10"
-                    : isDone
-                      ? "bg-emerald-300 text-[#0a1510]"
-                      : "border border-white/20 bg-[#16211c]"
+                  ? "bg-white text-[#0a1510] ring-4 ring-white/10"
+                  : isDone
+                    ? "bg-emerald-300 text-[#0a1510]"
+                    : "border border-white/20 bg-[#16211c]"
                   }`}
               >
                 {isActive && index + 1}

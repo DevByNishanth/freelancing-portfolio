@@ -239,7 +239,7 @@ const ProjectCard = ({ project, index, reduced }) => {
     // plain wrapper holds the static column offset so it never fights motion's transforms
     <div
       ref={ref}
-      className={index % 2 === 1 ? "md:translate-y-24 lg:translate-y-32" : ""}
+      className={`${index % 2 === 1 ? "md:translate-y-24 lg:translate-y-32" : ""} ` }
     >
       <motion.div
         initial={reduced ? "visible" : "hidden"}
@@ -255,7 +255,7 @@ const ProjectCard = ({ project, index, reduced }) => {
           onMouseMove={onMove}
           onMouseLeave={onLeave}
           style={{ rotateX: rx, rotateY: ry, transformPerspective: 1100 }}
-          className="group relative block rounded-3xl ..."
+          className="group relative block ... "
         >
           {/* light cast under the card */}
           <span
@@ -321,17 +321,17 @@ const ProjectCard = ({ project, index, reduced }) => {
 
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/20"
+              className="pointer-events-none absolute inset-0  ring-1 ring-inset ring-white/20"
             />
           </motion.div>
 
           {/* text layer */}
           <div
-            className={`pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-5 sm:p-6 lg:p-8 ${
+            className={`pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-3 sm:p-6 lg:p-8 ${
               light ? "text-white" : "text-[#1c1402]"
             }`}
           >
-            <div className="max-w-[62%]">
+            <div className="md:max-w-[62%]">
               <MaskLine delay={0.55 + stagger}>
                 <span className="text-[13px] font-medium opacity-80">
                   {project.brand}
@@ -542,7 +542,7 @@ const Project = () => {
         </div>
 
         {/* staggered grid */}
-        <div className="mt-14 grid grid-cols-1 gap-x-8 gap-y-12 md:mt-20 md:grid-cols-2 md:gap-y-14 lg:gap-x-12">
+        <div className="mt-14 grid grid-cols-1 gap-x-4 gap-y-4 md:mt-20 md:grid-cols-2 md:gap-y-14 lg:gap-x-12">
           {projects.map((project, index) => (
             <ProjectCard
               key={project.id}

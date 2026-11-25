@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
@@ -7,6 +7,7 @@ import {
   useTransform,
 } from "motion/react";
 import { Link } from "react-router-dom";
+import { useLenis } from "lenis/react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import arunaImg from "../assets/projects/arunaCanvas.png";
@@ -360,8 +361,19 @@ const ProjectCard = ({ project, index }) => {
 // --------------------------------------------------
 
 export const ProjectListing = () => {
+  const lenis = useLenis();
   const [activeTab, setActiveTab] = useState("All projects");
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
+
+  useEffect(() => {
+    if (lenis) lenis.scrollTo(0, { immediate: true });
+    else window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [lenis]);
+
+  const scrollToContact = () => {
+    if (lenis) lenis.scrollTo("#contact", { offset: 0 });
+    else document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const reducedMotion = useReducedMotion();
 
   // Category filtering
@@ -564,9 +576,9 @@ export const ProjectListing = () => {
             <button type="button" onClick={() => setIsProjectFormOpen(true)} className="w-1/2 cursor-pointer rounded-md bg-black px-3 py-2 text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-950 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
               Start a project
             </button>
-            <div className="w-1/2 cursor-pointer rounded-md border border-white/70 bg-white px-3 py-2 text-center text-black transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md">
+            <button type="button" onClick={scrollToContact} className="w-1/2 cursor-pointer rounded-md border border-white/70 bg-white px-3 py-2 text-center text-black transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md">
               Book a consultation
-            </div>
+            </button>
           </div>
         </div>
       </div>

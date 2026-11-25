@@ -601,7 +601,7 @@ const ProjectDetailPage = () => {
         </div>
       </section>
 
-      <Footer />
+      <Footer showNavigation={false} />
       <ProjectForm
         open={isProjectFormOpen}
         onClose={() => setIsProjectFormOpen(false)}

@@ -183,8 +183,8 @@ const Hint = ({ id, children }) => (
 );
 
 /* ---------- Guided demo: example text "types itself" into the blanks ----------
-   Plays once the blank scrolls into view, a couple of rounds, then stops.
-   It stops for good as soon as the visitor focuses anything in the form, never touches the real value,
+   Loops while the blank is visible, then stops for good when the visitor focuses an input.
+   It never touches the real value,
    and is skipped entirely for visitors who prefer reduced motion. */
 const NO_EXAMPLES = [];
 const NAME_EXAMPLES = ["Riya Nair", "Arun Raj"];
@@ -207,7 +207,7 @@ function useGhostTyping(enabled, examples, startDelay) {
 
     (async () => {
       await wait(startDelay);
-      for (let round = 0; round < 2; round++) {
+      while (!cancelled) {
         for (const example of examples) {
           if (cancelled) return;
           setRunning(true);
@@ -894,7 +894,9 @@ const Contact = () => {
                     noValidate
                     aria-label="Project enquiry"
                     aria-describedby="form-intro"
-                    onFocus={guide ? stopGuide : undefined}
+                    onFocus={guide ? (event) => {
+                      if (event.target.matches("input, textarea, select")) stopGuide();
+                    } : undefined}
                     exit={{ opacity: 0, y: -20, transition: { duration: 0.3 } }}
                     className="space-y-12 text-2xl font-medium leading-[1.35] tracking-tight text-white md:text-[32px]"
                   >

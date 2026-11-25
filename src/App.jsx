@@ -14,6 +14,7 @@ import { Route, Routes } from "react-router-dom";
 import { ProjectListing } from "./pages/ProjectListing";
 import Footer from "./components/Footer";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
+import NotchNavbar from "./components/NotchNavbar";
 function App() {
   function Counter({ value, suffix, delay }) {
     const count = useMotionValue(0);
@@ -46,7 +47,8 @@ function App() {
             <>
               {/* hero section  */}
 
-              <div className="h-screen relative bg-black ">
+              <div id="home" className="h-screen relative bg-black ">
+                {/* <NotchNavbar/> */}
                 <MagicRings
                   color="#009966"
                   colorTwo="#009966 "

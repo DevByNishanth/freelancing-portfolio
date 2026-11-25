@@ -166,6 +166,7 @@ const WhyChooseUs = () => {
 
     return (
         <div
+            id="about"
             onMouseMove={handleMove}
             onMouseLeave={handleLeave}
             className="main-container bg-[#f7ebd5] min-h-[90vh] relative overflow-hidden px-6 py-16 md:py-24 rounded-t-3xl"

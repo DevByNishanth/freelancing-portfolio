@@ -854,7 +854,7 @@ const Contact = () => {
                     </span>
                     Available for projects worldwide
                   </p>
-                  <p className="mt-2 text-gray-400">Based in [Your City], India</p>
+                  <p className="mt-2 text-gray-400">Based in Coimbatore, India</p>
                 </Reveal>
 
                 <Reveal delay={0.2} className="mt-12 hidden lg:block">

@@ -163,7 +163,7 @@ export default function ProjectForm({ open, onClose }) {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/75 p-3 backdrop-blur-md sm:p-6"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/65 p-3 backdrop-blur-md sm:p-6"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}
           role="presentation"
@@ -172,7 +172,7 @@ export default function ProjectForm({ open, onClose }) {
             role="dialog" aria-modal="true" aria-labelledby="project-form-title"
             initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.25 }}
-            className="relative my-auto w-[80%] overflow-hidden rounded-sm border border-white/15 bg-[#0a1510]/90 text-white shadow-[0_30px_120px_rgba(0,0,0,0.65)] backdrop-blur-2xl"
+            className="relative my-auto w-[80%] overflow-hidden rounded-lg border border-white/15 bg-[#0a1510]/0 text-white shadow-[0_30px_120px_rgba(0,0,0,0.65)] backdrop-blur-2xl"
           >
             <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-emerald-400/15 blur-[90px]" />
             <div className="relative border-b border-white/10 px-5 pb-5 pt-6 sm:px-8 sm:pt-8">

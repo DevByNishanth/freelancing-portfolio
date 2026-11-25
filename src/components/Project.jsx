@@ -16,6 +16,7 @@ import bookMyCabsImg from "../assets/projects/bookMyCabsCanvas.png";
 import exploreMunnarImg from "../assets/projects/exploreMunnarCanvas.png";
 import exploreMunnarDashboardImg from "../assets/projects/exploreMunnarDashboard.png";
 import shadowArrowImg from "../assets/projects/shadowArrowCanvas.png";
+import crossCurrencyCanvas from "../assets/projects/crossCurrencyCanvas.png";
 
 /* =====================================================================
    Projects — same language as Services / Team / Contact
@@ -50,17 +51,6 @@ const projects = [
     scrim: "rgba(120, 40, 0, 0.42)",
     glow: "#f4813b",
     href: "https://arunacaterer.com/",
-  },
-  {
-    id: "avarat",
-    brand: "Avarat Public School",
-    title: "School website with admissions, events and a parent portal.",
-    tags: ["Website", "Application"],
-    img: avaratImg,
-    alt: "Avarat Public School website shown on a tablet",
-    tone: "dark",
-    glow: "#e0961a",
-    href: "https://avatarpublicschool.com/",
   },
   {
     id: "explore-munnar",
@@ -98,19 +88,29 @@ const projects = [
     glow: "#f5c500",
     href: "https://bookmycabs.in",
   },
-  {
-    id: "explore-munnar-dashboard",
-    brand: "Explore Munnar",
-    title:
-      "A centralized dashboard to manage stays, activities and travel operations.",
-    tags: ["Admin Dashboard", "Management"],
-    img: exploreMunnarDashboardImg,
-    alt: "Explore Munnar admin dashboard displayed on a tablet",
-    tone: "light",
-    scrim: "rgba(0, 25, 10, 0.4)",
-    glow: "#5f8a3a",
-    href: "https://exploremunnardashboard.netlify.app/explore",
+   {
+    id: "avarat",
+    brand: "Avarat Public School",
+    title: "School website with admissions, events and a parent portal.",
+    tags: ["Website", "Application"],
+    img: avaratImg,
+    alt: "Avarat Public School website shown on a tablet",
+    tone: "dark",
+    glow: "#e0961a",
+    href: "https://avatarpublicschool.com/",
   },
+   {
+      id: "cross-currency",
+      brand: "Cross currency",
+      title:
+        "A currency conversion and financial data platform.",
+      tags: ["Trading", "Admin Dashboard"],
+      img: crossCurrencyCanvas,
+      tone: "light",
+      alt: "Explore Munnar management dashboard",
+      glow: "#5f8a3a",
+      href: "https://crosscurrencyfx.com",
+    },
 ];
 
 /* ---------- Heading: words slide up from a mask (same as the other sections) ---------- */

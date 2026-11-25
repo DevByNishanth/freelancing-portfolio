@@ -4,7 +4,7 @@ import Services from "./components/Services";
 import SloshButton from "./components/SloshButton";
 import TinctureSlosh from "./components/TinctureSlosh";
 import { motion, useMotionValue, useTransform, animate } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import WhyChooseUs from "./components/WhyChooseUs";
 import Team from "./components/Team";
 import Contact from "./components/Contact";
@@ -15,7 +15,9 @@ import { ProjectListing } from "./pages/ProjectListing";
 import Footer from "./components/Footer";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
 import NotchNavbar from "./components/NotchNavbar";
+import ProjectForm from "./components/ProjectForm";
 function App() {
+  const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
   function Counter({ value, suffix, delay }) {
     const count = useMotionValue(0);
 
@@ -47,7 +49,10 @@ function App() {
             <>
               {/* hero section  */}
 
-              <div id="home" className="h-screen relative bg-black ">
+              <div
+                id="home"
+                className="h-[100svh] min-h-[640px] md:h-screen relative bg-black overflow-hidden"
+              >
                 {/* <NotchNavbar/> */}
                 <MagicRings
                   color="#009966"
@@ -60,7 +65,7 @@ function App() {
                   clickBurst={true}
                 />
 
-                <div className="content-container w-[90%] text-center text-white absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] ">
+                <div className="content-container w-[92%] md:w-[90%] text-center text-white absolute top-[45%] md:top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%] ">
                   <motion.h1
                     initial="hidden"
                     animate="visible"
@@ -73,12 +78,12 @@ function App() {
                         },
                       },
                     }}
-                    className="text-white text-[80px] font-medium text-center"
+                    className="text-white text-3xl sm:text-5xl md:text-6xl lg:text-[80px] mb-4 md:mb-0 font-medium text-center"
                   >
                     {["IDEAS.", "DESIGN.", "DEVELOPMENT."].map((word, i) => (
                       <motion.span
                         key={i}
-                        className="inline-block mr-5"
+                        className="inline-block mx-1 md:mx-0 md:mr-5"
                         variants={{
                           hidden: {
                             y: 100,
@@ -110,14 +115,14 @@ function App() {
                       duration: 1,
                       ease: "easeOut",
                     }}
-                    className="text-gray-100 w-[60%] m-auto"
+                    className="text-gray-100 text-sm md:text-md w-full sm:w-[80%] md:w-[60%] m-auto"
                   >
                     We turn ideas into impactful digital experiences. From
                     stunning websites to powerful web applications, we help
                     businesses build, evolve, and grow online.
                   </motion.p>
 
-                  <div className="button-container mt-4 flex gap-2 m-auto w-fit">
+                  <div className="button-container mt-6 md:mt-4 flex flex-col sm:flex-row items-center justify-center gap-2 m-auto w-fit">
                     <motion.div
                       initial={{ opacity: 0, y: 30, scale: 0.9 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -130,6 +135,7 @@ function App() {
                         dye="#3d3d3d"
                         textColor="#ffffff"
                         glow={45}
+                        onClick={() => setIsProjectFormOpen(true)}
                       />
                     </motion.div>
 
@@ -145,6 +151,7 @@ function App() {
                         dye="#ebebeb"
                         textColor="#000000"
                         glow={45}
+                        onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
                       />
                     </motion.div>
                   </div>
@@ -162,7 +169,7 @@ function App() {
                       },
                     },
                   }}
-                  className="count-container text-white absolute left-6 bottom-4 flex gap-8"
+                  className="count-container text-white absolute left-4 right-4 bottom-6 md:left-6 md:right-auto md:bottom-4 flex justify-between md:justify-start gap-4 md:gap-8"
                 >
                   {[
                     { label: "Experience", value: 3, suffix: "+" },
@@ -187,7 +194,7 @@ function App() {
                           },
                         },
                       }}
-                      className="w-fit"
+                      className="w-fit min-w-0"
                     >
                       <motion.div
                         initial={{ width: 0 }}
@@ -199,7 +206,7 @@ function App() {
                         className="h-[1px] bg-[#1f1f1f] mb-3"
                       />
 
-                      <p className="text-gray-500 text-sm mb-1">{item.label}</p>
+                      <p className="text-gray-500 text-xs md:text-sm mb-1">{item.label}</p>
 
                       <Counter
                         value={item.value}
@@ -214,7 +221,7 @@ function App() {
                   initial={{ opacity: 0, Y: 60, filter: "blur(8px)" }}
                   animate={{ opacity: 1, Y: 0, filter: "blur(0px)" }}
                   transition={{ delay: 1.7, duration: 1.2 }}
-                  className="count-container text-gray-400 absolute right-2 bottom-4 flex gap-6 w-[40%] text-[14px]"
+                  className="count-container text-gray-400 absolute right-2 bottom-4 hidden lg:flex gap-6 w-[40%] text-[14px]"
                 >
                   <p>
                     A creative team building modern websites and digital
@@ -223,6 +230,7 @@ function App() {
                   </p>
                 </motion.div>
               </div>
+
 
               {/* services    */}
               <Services />
@@ -252,6 +260,7 @@ function App() {
         <Route path="/projects" element={<ProjectListing />} />
         <Route path="/projects/:id" element={<ProjectDetailPage />} />
       </Routes>
+      <ProjectForm open={isProjectFormOpen} onClose={() => setIsProjectFormOpen(false)} />
     </>
   );
 }

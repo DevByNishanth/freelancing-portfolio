@@ -532,7 +532,7 @@ export const ProjectListing = () => {
       {/* PROJECT GRID */}
       {/* ------------------------------------------------ */}
 
-      <section className="relative z-10 mx-auto mt-10 w-[80%]">
+      <section className="relative z-10 mx-auto mt-10 w-[90%] md:w-[80%]">
         <AnimatePresence mode="popLayout">
           <motion.div
             layout
@@ -557,26 +557,26 @@ export const ProjectListing = () => {
       </section>
 
       {/* cta banner  */}
-      <div className="call-to-action h-[260px] relative overflow-hidden p-4 rounded-xl w-[80%] m-auto  mt-16">
+      <div className="call-to-action h-[260px] relative overflow-hidden p-4 md:rounded-xl w-full md:w-[80%] m-auto  mt-16">
         {/* glow  */}
         <div className="glow bg-[#03fc5e] rounded-full blur-[110px] absolute -bottom-45 left-[50%] translate-x-[-50%]  w-[260px] h-[160px]"></div>
 
         {/* content */}
-        <div className="content-container text-center absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] ">
-          <h1 className="uppercase text-4xl font-semibold text-white">
+        <div className="content-container text-center absolute top-[50%] left-[50%]  w-full translate-x-[-50%] translate-y-[-50%] ">
+          <h1 className="uppercase text-xl md:text-4xl font-semibold text-white">
             Your project is next.
           </h1>
-          <h1 className="text-gray-400 mt-4">
+          <h1 className="text-gray-400 md:mt-4">
             Tell us what you’re building and we’ll help shape it.
           </h1>
 
           {/* button  */}
 
-          <div className="btn-container flex items-center gap-2 mt-4">
-            <button type="button" onClick={() => setIsProjectFormOpen(true)} className="w-1/2 cursor-pointer rounded-md bg-black px-3 py-2 text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-950 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
+          <div className="btn-container w-[90%] m-auto md:w-[40%] flex items-center gap-2 mt-4">
+            <button type="button" onClick={() => setIsProjectFormOpen(true)} className="w-1/2 text-xs md:text-md cursor-pointer rounded-md bg-black px-3 py-2 h-10 text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-950 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
               Start a project
             </button>
-            <button type="button" onClick={scrollToContact} className="w-1/2 cursor-pointer rounded-md border border-white/70 bg-white px-3 py-2 text-center text-black transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md">
+            <button type="button" onClick={scrollToContact} className="w-1/2 cursor-pointer text-xs md:text-md rounded-md border border-white/70 bg-white px-3 h-10 py-2 text-center text-black transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md">
               Book a consultation
             </button>
           </div>

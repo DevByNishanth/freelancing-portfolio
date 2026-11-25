@@ -1074,17 +1074,9 @@ const Contact = () => {
                             whileHover="hover"
                             whileFocus="hover"
                             whileTap={{ scale: 0.96 }}
-                            className="relative inline-flex cursor-pointer items-center gap-3 overflow-hidden rounded-full bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.15em] text-black outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black aria-disabled:cursor-wait"
+                            className="relative inline-flex cursor-pointer items-center gap-3 rounded-full border border-white/70 bg-white px-8 py-4 text-sm font-semibold uppercase tracking-[0.15em] text-black shadow-sm outline-none transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black aria-disabled:cursor-wait"
                           >
                             <motion.span
-                              aria-hidden
-                              variants={{ rest: { y: "101%" }, hover: { y: 0 } }}
-                              transition={{ duration: 0.5, ease: EASE }}
-                              className="absolute inset-0 bg-emerald-600"
-                            />
-                            <motion.span
-                              variants={{ rest: { color: "#000" }, hover: { color: "#fff" } }}
-                              transition={{ duration: 0.3 }}
                               className="relative"
                             >
                               {sending ? "Sending" : status === "error" ? "Try again" : "Let's talk"}
@@ -1097,7 +1089,7 @@ const Contact = () => {
                             ) : (
                               <motion.svg
                                 aria-hidden
-                                variants={{ rest: { x: 0, color: "#000" }, hover: { x: 6, color: "#fff" } }}
+                                variants={{ rest: { x: 0, color: "#000" }, hover: { x: 4, color: "#065f46" } }}
                                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 className="relative"
                                 width="18"

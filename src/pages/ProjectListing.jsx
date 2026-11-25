@@ -323,13 +323,8 @@ const ProjectCard = ({ project, index }) => {
                       if (!project.href || project.href === "#") e.preventDefault();
                     }}
                     aria-label={`View live project: ${project.brand}`}
-                    className="group/btn relative inline-flex translate-y-4 items-center gap-2 overflow-hidden rounded-full bg-white px-4 py-2 text-xs font-semibold text-black opacity-0 shadow-lg shadow-black/30 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-black hover:text-white focus-visible:translate-y-0 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 active:scale-95 sm:text-sm [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100"
+                    className="group/btn relative inline-flex translate-y-4 items-center gap-2 overflow-hidden rounded-full border border-white/70 bg-white px-4 py-2 text-xs font-semibold text-black opacity-0 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md focus-visible:translate-y-0 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 active:scale-95 sm:text-sm [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100"
                   >
-                    {/* shine sweep */}
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute inset-y-0 -left-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 ease-out group-hover/btn:translate-x-[400%]"
-                    />
                     <span className="relative">View project</span>
                     <ArrowUpRight
                       aria-hidden
@@ -566,10 +561,10 @@ export const ProjectListing = () => {
           {/* button  */}
 
           <div className="btn-container flex items-center gap-2 mt-4">
-            <button type="button" onClick={() => setIsProjectFormOpen(true)} className="btn-1 cursor-pointer bg-black text-white px-3 py-2 w-1/2 rounded-md transition hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
+            <button type="button" onClick={() => setIsProjectFormOpen(true)} className="w-1/2 cursor-pointer rounded-md bg-black px-3 py-2 text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-950 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
               Start a project
             </button>
-            <div className="btn-2 cursor-pointer bg-white text-black px-3 py-2 w-1/2 rounded-md">
+            <div className="w-1/2 cursor-pointer rounded-md border border-white/70 bg-white px-3 py-2 text-center text-black transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-800/20 hover:bg-emerald-50 hover:text-emerald-950 hover:shadow-md">
               Book a consultation
             </div>
           </div>

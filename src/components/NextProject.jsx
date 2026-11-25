@@ -55,7 +55,7 @@ export default function NextProject({ project }) {
                     </div>
 
                     {/* View button */}
-                    <span className="relative flex shrink-0 items-center gap-2 self-start rounded-full bg-linear-to-r from-emerald-400 to-emerald-800 p-2.5 text-sm font-semibold text-black shadow-lg shadow-emerald-900/30 transition-all duration-300 group-hover:bg-emerald-300 sm:px-5 sm:py-2.5">
+                    <span className="relative flex shrink-0 items-center gap-2 self-start rounded-full border border-white/70 bg-white p-2.5 text-sm font-semibold text-black shadow-sm transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-emerald-800/20 group-hover:bg-emerald-50 group-hover:text-emerald-950 group-hover:shadow-md sm:px-5 sm:py-2.5">
                         <span className="hidden sm:inline">View project</span>
                         <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </span>

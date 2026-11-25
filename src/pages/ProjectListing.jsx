@@ -45,7 +45,7 @@ const projects = [
     img: arunaImg,
     alt: "Aruna catering website shown on a tablet",
     glow: "#f4813b",
-    href: "https://arunacaterer.com",
+    href: "https://arunacaterer.com/",
   },
   {
     id: "avarat",
@@ -55,7 +55,7 @@ const projects = [
     img: avaratImg,
     alt: "Avarat Public School website shown on a tablet",
     glow: "#e0961a",
-    href: "#",
+    href: "https://avatarpublicschool.com/",
   },
   {
     id: "explore-munnar",
@@ -66,7 +66,7 @@ const projects = [
     img: exploreMunnarImg,
     alt: "Explore Munnar admin dashboard displayed on a tablet",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://www.exploringmunnar.com",
   },
   {
     id: "shadow-arrow",
@@ -76,7 +76,7 @@ const projects = [
     img: shadowArrowImg,
     alt: "Shadow Arrow company website shown on a tablet",
     glow: "#1d4ed8",
-    href: "#",
+    href: "https://shadowarrow.com/",
   },
   {
     id: "book-my-cabs",
@@ -86,7 +86,7 @@ const projects = [
     img: bookMyCabsImg,
     alt: "Book My Cabs taxi booking website shown on a tablet",
     glow: "#f5c500",
-    href: "#",
+    href: "https://bookmycabs.in",
   },
   {
     id: "learning-management",
@@ -97,7 +97,7 @@ const projects = [
     img: lmsCanvas,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://sece-lms.vercel.app/",
   },
   {
     id: "explore-munnar-dashboard",
@@ -108,7 +108,7 @@ const projects = [
     img: exploreMunnarDashboardImg,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://exploremunnardashboard.netlify.app/",
   },
   {
     id: "event-management",
@@ -119,7 +119,7 @@ const projects = [
     img: eventsCanvas,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://srieshwarevents.com",
   },
   {
     id: "cross-currency",
@@ -130,7 +130,7 @@ const projects = [
     img: crossCurrencyCanvas,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://crosscurrencyfx.com",
   },
   {
     id: "human-resource",
@@ -141,7 +141,7 @@ const projects = [
     img: hrmsCanvas,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://srieshwarems.com",
   },
 
 ];

@@ -18,7 +18,7 @@ export const projects = [
     img: arunaImg,
     alt: "Aruna catering website shown on a tablet",
     glow: "#f4813b",
-    href: "https://arunacaterer.com",
+    href: "https://arunacaterer.com/",
     // Optional — every field below falls back to a placeholder if omitted.
     caseStudy: {
       client: "Aruna Caterers",
@@ -59,7 +59,7 @@ export const projects = [
     img: avaratImg,
     alt: "Avarat Public School website shown on a tablet",
     glow: "#e0961a",
-    href: "#",
+    href: "https://avatarpublicschool.com/",
   },
   {
     id: "explore-munnar",
@@ -70,7 +70,7 @@ export const projects = [
     img: exploreMunnarImg,
     alt: "Explore Munnar admin dashboard displayed on a tablet",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://www.exploringmunnar.com",
   },
   {
     id: "shadow-arrow",
@@ -80,7 +80,7 @@ export const projects = [
     img: shadowArrowImg,
     alt: "Shadow Arrow company website shown on a tablet",
     glow: "#1d4ed8",
-    href: "#",
+    href: "https://shadowarrow.com/",
   },
   {
     id: "book-my-cabs",
@@ -90,7 +90,7 @@ export const projects = [
     img: bookMyCabsImg,
     alt: "Book My Cabs taxi booking website shown on a tablet",
     glow: "#f5c500",
-    href: "#",
+    href: "https://bookmycabs.in",
   },
   {
     id: "learning-management",
@@ -101,7 +101,7 @@ export const projects = [
     img: lmsCanvas,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://sece-lms.vercel.app/",
   },
   {
     id: "explore-munnar-dashboard",
@@ -112,7 +112,7 @@ export const projects = [
     img: exploreMunnarDashboardImg,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://exploremunnardashboard.netlify.app/",
   },
   {
     id: "event-management",
@@ -123,7 +123,7 @@ export const projects = [
     img: eventsCanvas,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://srieshwarevents.com",
   },
   {
     id: "cross-currency",
@@ -134,7 +134,7 @@ export const projects = [
     img: crossCurrencyCanvas,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://crosscurrencyfx.com",
   },
   {
     id: "human-resource",
@@ -145,7 +145,7 @@ export const projects = [
     img: hrmsCanvas,
     alt: "Explore Munnar management dashboard",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://srieshwarems.com",
   },
 
 ];

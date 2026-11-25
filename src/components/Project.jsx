@@ -49,7 +49,7 @@ const projects = [
     tone: "light",
     scrim: "rgba(120, 40, 0, 0.42)",
     glow: "#f4813b",
-    href: "https://arunacaterer.com",
+    href: "https://arunacaterer.com/",
   },
   {
     id: "avarat",
@@ -60,7 +60,7 @@ const projects = [
     alt: "Avarat Public School website shown on a tablet",
     tone: "dark",
     glow: "#e0961a",
-    href: "#",
+    href: "https://avatarpublicschool.com/",
   },
   {
     id: "explore-munnar",
@@ -73,7 +73,7 @@ const projects = [
     tone: "light",
     scrim: "rgba(0, 25, 10, 0.4)",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://www.exploringmunnar.com",
   },
   {
     id: "shadow-arrow",
@@ -85,7 +85,7 @@ const projects = [
     tone: "light",
     scrim: "rgba(0, 10, 50, 0.35)",
     glow: "#1d4ed8",
-    href: "#",
+    href: "https://shadowarrow.com/",
   },
   {
     id: "book-my-cabs",
@@ -96,10 +96,10 @@ const projects = [
     alt: "Book My Cabs taxi booking website shown on a tablet",
     tone: "dark",
     glow: "#f5c500",
-    href: "#",
+    href: "https://bookmycabs.in",
   },
   {
-    id: "explore-munnar",
+    id: "explore-munnar-dashboard",
     brand: "Explore Munnar",
     title:
       "A centralized dashboard to manage stays, activities and travel operations.",
@@ -109,7 +109,7 @@ const projects = [
     tone: "light",
     scrim: "rgba(0, 25, 10, 0.4)",
     glow: "#5f8a3a",
-    href: "#",
+    href: "https://exploremunnardashboard.netlify.app/explore",
   },
 ];
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
 const steps = ["Contact info", "Project details", "About you"];
@@ -26,11 +26,14 @@ const selectOptions = {
     "E-commerce Website",
     "Other",
   ],
-  budgetRange: ["Under $1,000", "$1,000–$5,000", "$5,000–$10,000", "$10,000+", "Not sure yet"],
+  budgetRange: ["Under 10,000", "10,000–20,000", "20,000–50,000", "50,000+", "Not sure yet"],
   timeline: ["As soon as possible", "Within 1 month", "1–3 months", "3–6 months", "Flexible"],
   role: ["Founder / Owner", "Business Manager", "Developer", "Marketing Team", "Other"],
   referralSource: ["Google Search", "Social Media", "Referral", "Other"],
 };
+
+const inputClass =
+  "mt-2 w-full rounded-sm border border-white/10 bg-white/[0.055] px-4 py-3 text-base text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/70 focus:ring-2 focus:ring-emerald-300/15";
 
 function Field({ label, name, value, onChange, required, type = "text", placeholder }) {
   return (
@@ -45,7 +48,7 @@ function Field({ label, name, value, onChange, required, type = "text", placehol
         required={required}
         placeholder={placeholder}
         autoComplete={name === "fullName" ? "name" : name === "email" ? "email" : name === "phone" ? "tel" : undefined}
-        className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.055] px-4 py-3 text-base text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/70 focus:ring-2 focus:ring-emerald-300/15"
+        className={inputClass}
       />
     </label>
   );
@@ -61,12 +64,64 @@ function SelectField({ label, name, value, onChange, options, required }) {
         value={value}
         onChange={onChange}
         required={required}
-        className="mt-2 w-full rounded-xl border border-white/10 bg-[#101b16] px-4 py-3 text-base text-white outline-none transition focus:border-emerald-300/70 focus:ring-2 focus:ring-emerald-300/15"
+        className="mt-2 w-full rounded-sm border border-white/10 bg-[#101b16] px-4 py-3 text-base text-white outline-none transition focus:border-emerald-300/70 focus:ring-2 focus:ring-emerald-300/15"
       >
         <option value="" disabled>Select an option</option>
         {options.map((option) => <option key={option} value={option}>{option}</option>)}
       </select>
     </label>
+  );
+}
+
+function Stepper({ current }) {
+  return (
+    <ol className="mt-3 flex items-center pb-6" aria-label={`Step ${current + 1} of ${steps.length}`}>
+      {steps.map((title, index) => {
+        const isActive = index === current;
+        const isDone = index < current;
+
+        return (
+          <Fragment key={title}>
+            {index > 0 && (
+              <li aria-hidden="true" className="relative mx-1 h-px flex-1 bg-white/15">
+                <motion.span
+                  className="absolute inset-y-0 left-0 bg-emerald-300"
+                  initial={false}
+                  animate={{ width: index <= current ? "100%" : "0%" }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                />
+              </li>
+            )}
+
+            <li
+              className="relative flex shrink-0 items-center justify-center"
+              aria-current={isActive ? "step" : undefined}
+            >
+              <span
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-all duration-300 ${isActive
+                    ? "bg-white text-[#0a1510] ring-4 ring-white/10"
+                    : isDone
+                      ? "bg-emerald-300 text-[#0a1510]"
+                      : "border border-white/20 bg-[#16211c]"
+                  }`}
+              >
+                {isActive && index + 1}
+                {isDone && "✓"}
+                {!isActive && !isDone && <span className="h-1.5 w-1.5 rounded-full bg-white/70" />}
+              </span>
+
+              <span
+                className={`absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.15em] transition-colors ${isActive ? "text-white/80" : "text-white/35"
+                  }`}
+              >
+                Step {index + 1}
+                <span className="sr-only"> — {title}</span>
+              </span>
+            </li>
+          </Fragment>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -117,23 +172,16 @@ export default function ProjectForm({ open, onClose }) {
             role="dialog" aria-modal="true" aria-labelledby="project-form-title"
             initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.25 }}
-            className="relative my-auto w-full max-w-2xl overflow-hidden rounded-3xl border border-white/15 bg-[#0a1510]/90 text-white shadow-[0_30px_120px_rgba(0,0,0,0.65)] backdrop-blur-2xl"
+            className="relative my-auto w-[80%] overflow-hidden rounded-sm border border-white/15 bg-[#0a1510]/90 text-white shadow-[0_30px_120px_rgba(0,0,0,0.65)] backdrop-blur-2xl"
           >
             <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-emerald-400/15 blur-[90px]" />
             <div className="relative border-b border-white/10 px-5 pb-5 pt-6 sm:px-8 sm:pt-8">
               <button type="button" onClick={close} aria-label="Close project form" className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-xl text-white/60 transition hover:bg-white/10 hover:text-white">×</button>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">Start a project</p>
-              <h2 id="project-form-title" className="mt-2 pr-10 text-2xl font-semibold tracking-tight sm:text-3xl">{submitted ? "Thanks for reaching out." : "Let’s build something meaningful."}</h2>
-              <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/55">{submitted ? "Your project details are ready. We’ll be in touch soon." : "Share a few details and we’ll get back to you to talk through the next steps."}</p>
+              <h2 id="project-form-title" className="mt-2 pr-10 text-2xl font-semibold tracking-tight sm:text-xl">{submitted ? "Thanks for reaching out." : "Let’s build something meaningful."}</h2>
+              <p className="max-w-lg text-sm leading-relaxed text-white/55">{submitted ? "Your project details are ready. We’ll be in touch soon." : "Share a few details and we’ll get back to you to talk through the next steps."}</p>
 
-              {!submitted && <div className="mt-7 grid grid-cols-3 gap-2" aria-label={`Step ${step + 1} of 3`}>
-                {steps.map((title, index) => (
-                  <div key={title} className="min-w-0">
-                    <div className={`mb-2 h-1 rounded-full ${index <= step ? "bg-emerald-300" : "bg-white/10"}`} />
-                    <span className={`text-[11px] sm:text-xs ${index === step ? "text-white" : "text-white/40"}`}>{String(index + 1).padStart(2, "0")} — {title}</span>
-                  </div>
-                ))}
-              </div>}
+              {!submitted && <Stepper current={step} />}
             </div>
 
             {submitted ? (
@@ -155,7 +203,7 @@ export default function ProjectForm({ open, onClose }) {
                     <SelectField label="Budget Range" name="budgetRange" value={values.budgetRange} onChange={updateValue} options={selectOptions.budgetRange} />
                     <div className="sm:col-span-2">
                       <label htmlFor="projectDescription" className="block text-sm font-medium text-white/80">Project Description<span className="ml-1 text-emerald-300">*</span></label>
-                      <textarea id="projectDescription" name="projectDescription" value={values.projectDescription} onChange={updateValue} required rows={4} placeholder="What would you like to build?" className="mt-2 w-full resize-y rounded-xl border border-white/10 bg-white/[0.055] px-4 py-3 text-base text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/70 focus:ring-2 focus:ring-emerald-300/15" />
+                      <textarea id="projectDescription" name="projectDescription" value={values.projectDescription} onChange={updateValue} required rows={4} placeholder="What would you like to build?" className={`${inputClass} min-h-[80px] max-h-[40px] `} />
                     </div>
                     <SelectField label="Expected Timeline" name="timeline" value={values.timeline} onChange={updateValue} options={selectOptions.timeline} />
                   </>}
@@ -163,7 +211,7 @@ export default function ProjectForm({ open, onClose }) {
                     <fieldset className="sm:col-span-2">
                       <legend className="text-sm font-medium text-white/80">Are you an individual or a business?<span className="ml-1 text-emerald-300">*</span></legend>
                       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                        {["Individual", "Startup", "Small Business", "Established Company"].map((option) => <label key={option} className={`cursor-pointer rounded-xl border px-3 py-3 text-center text-xs transition sm:text-sm ${values.clientType === option ? "border-emerald-300/70 bg-emerald-300/10 text-emerald-100" : "border-white/10 bg-white/[0.035] text-white/65 hover:border-white/25"}`}><input className="sr-only" type="radio" name="clientType" value={option} checked={values.clientType === option} onChange={updateValue} required />{option}</label>)}
+                        {["Individual", "Startup", "Small Business", "Established Company"].map((option) => <label key={option} className={`cursor-pointer rounded-sm border px-3 py-3 text-center text-xs transition sm:text-sm ${values.clientType === option ? "border-emerald-300/70 bg-emerald-300/10 text-emerald-100" : "border-white/10 bg-white/[0.035] text-white/65 hover:border-white/25"}`}><input className="sr-only" type="radio" name="clientType" value={option} checked={values.clientType === option} onChange={updateValue} required />{option}</label>)}
                       </div>
                     </fieldset>
                     <Field label="Company / Brand Name" name="companyName" value={values.companyName} onChange={updateValue} placeholder="Your company (optional)" />
